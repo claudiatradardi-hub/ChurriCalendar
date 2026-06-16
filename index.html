@@ -1,0 +1,1344 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Churri Dashboard · Genesis · KOBO Growth</title>
+<style>
+:root{
+  --mauve:#A87CA0; --mauve-deep:#7E5476; --mauve-soft:#C9A8C4; --mauve-pale:#EFE3EE;
+  --gold:#C9A45E; --gold-soft:#E6CF9E; --gold-pale:#F6EEDD;
+  --rose:#E5A9BE; --sage:#9DB89C; --sage-pale:#E7EFE6;
+  --bg:#F8F3F8; --card:#FFFFFF; --ink:#4A3A47; --ink-soft:#8A7A86; --line:#EEE3EC;
+  --ok:#8BBF8B; --warn:#E0A85C; --bad:#D98B97; --info:#9DA8D4;
+  --shadow:0 6px 22px rgba(126,84,118,.10); --shadow-sm:0 2px 8px rgba(126,84,118,.08);
+  --r:18px; --r-sm:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:rgba(168,124,160,.15)}
+html{-webkit-text-size-adjust:100%}
+body{font-family:'Segoe UI',-apple-system,system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-weight:700;color:var(--mauve-deep)}
+a{color:var(--mauve)}
+::selection{background:var(--mauve-soft);color:#fff}
+button,input,select,textarea{font-family:inherit}
+/* ===== LOGIN ===== */
+.login{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:24px;
+  background:linear-gradient(150deg,#EFE3EE 0%,#F6EEDD 55%,#F3E1E8 100%);overflow:hidden}
+.login::before,.login::after{content:'';position:absolute;border-radius:50%;filter:blur(2px);opacity:.5}
+.login::before{width:280px;height:280px;background:radial-gradient(circle,var(--mauve-soft),transparent 70%);top:-60px;left:-60px}
+.login::after{width:320px;height:320px;background:radial-gradient(circle,var(--gold-soft),transparent 70%);bottom:-80px;right:-70px}
+.login-card{position:relative;z-index:2;background:rgba(255,255,255,.85);backdrop-filter:blur(14px);border:1px solid #fff;
+  border-radius:28px;padding:38px 32px;max-width:380px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(126,84,118,.22)}
+.login-mark{width:74px;height:74px;border-radius:22px;margin:0 auto 16px;background:linear-gradient(135deg,var(--mauve),var(--gold));
+  display:flex;align-items:center;justify-content:center;color:#fff;font-size:34px;font-weight:800;box-shadow:0 10px 26px rgba(168,124,160,.4)}
+.login-card h1{font-size:30px;letter-spacing:.5px;background:linear-gradient(120deg,var(--mauve-deep),var(--gold));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.login-card .hi{color:var(--ink);font-size:14.5px;margin-top:10px;line-height:1.6}
+.login-card .hi b{color:var(--mauve-deep)}
+.login-num{display:flex;gap:10px;justify-content:center;margin:18px 0 6px}
+.login-num .nb{background:#fff;border:1px solid var(--line);border-radius:14px;padding:8px 14px;box-shadow:var(--shadow-sm)}
+.login-num .nb .v{font-size:22px;font-weight:800;color:var(--gold)}
+.login-num .nb .l{font-size:9.5px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.5px}
+.login-form{margin-top:20px}
+.login-form input{width:100%;border:1.5px solid var(--mauve-soft);border-radius:14px;padding:14px 16px;font-size:15px;text-align:center;color:var(--ink);background:#fff}
+.login-form input:focus{outline:none;border-color:var(--mauve);box-shadow:0 0 0 4px var(--mauve-pale)}
+.login-form button{width:100%;margin-top:12px;border:0;border-radius:14px;padding:14px;font-size:15px;font-weight:700;color:#fff;
+  background:linear-gradient(135deg,var(--mauve),var(--mauve-deep));cursor:pointer;box-shadow:var(--shadow)}
+.login-form button:active{transform:scale(.98)}
+.login-err{color:var(--bad);font-size:13px;margin-top:10px;font-weight:600;min-height:18px}
+.login-foot{margin-top:18px;font-size:12px;color:var(--ink-soft)}
+.shake{animation:sh .4s}
+@keyframes sh{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+.app.locked{display:none}
+/* ===== MODAL ===== */
+.modal-ov{position:fixed;inset:0;z-index:60;background:rgba(74,58,71,.45);backdrop-filter:blur(3px);display:none;align-items:flex-start;justify-content:center;padding:24px 16px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.modal-ov.show{display:flex}
+.modal-card{background:#fff;border-radius:22px;max-width:440px;width:100%;padding:24px;box-shadow:0 24px 60px rgba(126,84,118,.32);margin:24px 0 40px;animation:pop .2s}
+@keyframes pop{from{transform:translateY(10px) scale(.98);opacity:0}to{transform:none;opacity:1}}
+.modal-card h3{font-size:19px;margin-bottom:2px}
+.modal-card .m-sub{font-size:12.5px;color:var(--ink-soft);margin-bottom:14px}
+.m-field{display:block;margin-bottom:13px}
+.m-field>span{display:block;font-size:12.5px;font-weight:600;color:var(--mauve-deep);margin-bottom:5px}
+.m-in{width:100%;border:1.5px solid var(--line);border-radius:12px;padding:12px 13px;font-size:15px;color:var(--ink);background:#fff;font-family:inherit;min-height:46px}
+.m-in:focus{outline:none;border-color:var(--mauve);box-shadow:0 0 0 3px var(--mauve-pale)}
+.m-in.err{border-color:var(--bad);box-shadow:0 0 0 3px #FBE7EA}
+select.m-in{appearance:none;-webkit-appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--mauve) 50%),linear-gradient(135deg,var(--mauve) 50%,transparent 50%);background-position:calc(100% - 18px) 20px,calc(100% - 13px) 20px;background-size:5px 5px,5px 5px;background-repeat:no-repeat;padding-right:34px}
+textarea.m-in{resize:vertical;min-height:80px}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:18px}
+.modal-actions .btn{min-width:104px;justify-content:center}
+.m-msg{font-size:15px;color:var(--ink);line-height:1.5}
+/* ===== Layout ===== */
+.app{display:flex;min-height:100vh}
+.sidebar{width:236px;background:linear-gradient(170deg,#fff 0%,#FBF5FB 100%);border-right:1px solid var(--line);position:fixed;height:100vh;display:flex;flex-direction:column;z-index:30;transition:transform .25s}
+.brand{padding:20px 20px 14px}
+.brand .logo{display:flex;align-items:center;gap:10px}
+.brand .mark{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--mauve),var(--gold));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:18px;box-shadow:var(--shadow-sm)}
+.brand .name{font-weight:800;color:var(--mauve-deep);font-size:16px;letter-spacing:.3px}
+.brand .sub{font-size:11px;color:var(--ink-soft);margin-top:2px;margin-left:50px}
+.nav{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:6px 12px 14px}
+.nav::-webkit-scrollbar{width:6px}.nav::-webkit-scrollbar-thumb{background:var(--mauve-pale);border-radius:6px}
+.nav .grp{font-size:10px;text-transform:uppercase;letter-spacing:1.2px;color:var(--ink-soft);margin:16px 12px 6px;font-weight:700}
+.nav button{width:100%;border:0;background:transparent;text-align:left;padding:11px 12px;border-radius:12px;color:var(--ink);font-size:14px;cursor:pointer;display:flex;align-items:center;gap:11px;transition:.15s;font-weight:500;min-height:44px}
+.nav button .ico{font-size:17px;width:22px;text-align:center}
+.nav button:hover{background:var(--mauve-pale)}
+.nav button.active{background:linear-gradient(135deg,var(--mauve),var(--mauve-soft));color:#fff;box-shadow:var(--shadow-sm);font-weight:600}
+.nav button .badge{margin-left:auto;background:var(--rose);color:#fff;font-size:10px;font-weight:700;padding:1px 7px;border-radius:10px;min-width:20px;text-align:center}
+.nav button.active .badge{background:rgba(255,255,255,.3)}
+.logout{margin:4px 12px 16px;border:1px solid var(--line);background:#fff;color:var(--ink-soft);border-radius:12px;padding:10px;font-size:12.5px;cursor:pointer;font-weight:600}
+.main{margin-left:236px;flex:1;min-width:0}
+.topbar{position:sticky;top:0;background:rgba(248,243,248,.9);backdrop-filter:blur(10px);padding:14px 26px;display:flex;align-items:center;gap:12px;z-index:20;border-bottom:1px solid var(--line)}
+.topbar h1{font-size:20px}
+.topbar .greet{color:var(--ink-soft);font-size:13px;margin-left:auto}
+.topbar .pill{background:var(--gold-pale);color:var(--gold);border:1px solid var(--gold-soft);padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600;white-space:nowrap}
+.menu-btn{display:none;border:0;background:var(--mauve-pale);color:var(--mauve-deep);width:42px;height:42px;border-radius:12px;font-size:20px;cursor:pointer}
+.scrim{display:none;position:fixed;inset:0;background:rgba(74,58,71,.35);z-index:25}
+.view{padding:22px 26px 70px;max-width:1240px}
+/* ===== Cards & grids ===== */
+.grid{display:grid;gap:16px}
+.kpis{grid-template-columns:repeat(auto-fit,minmax(160px,1fr))}
+.g2{display:grid;gap:16px;grid-template-columns:repeat(2,1fr)}
+.g3{display:grid;gap:16px;grid-template-columns:repeat(3,1fr)}
+.g4{display:grid;gap:14px;grid-template-columns:repeat(4,1fr)}
+.card{background:var(--card);border-radius:var(--r);padding:18px;box-shadow:var(--shadow-sm);border:1px solid var(--line)}
+.card.soft{background:linear-gradient(160deg,#fff,#FCF7FB)}
+.section-title{display:flex;align-items:center;gap:10px;margin:24px 0 14px}
+.section-title h2{font-size:17px}
+.section-title .line{flex:1;height:1px;background:var(--line)}
+/* Numerology banner */
+.numero{position:relative;overflow:hidden;border-radius:var(--r);padding:20px 22px;color:#fff;
+  background:linear-gradient(120deg,var(--mauve-deep),var(--mauve) 55%,var(--gold));box-shadow:var(--shadow)}
+.numero .spark{position:absolute;opacity:.18;font-size:90px;right:10px;top:-14px}
+.numero h3{color:#fff;font-size:15px;letter-spacing:.5px}
+.numero .aff{font-size:16px;font-weight:600;margin-top:8px;max-width:640px;line-height:1.5}
+.numero .nums{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+.numero .nbx{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:13px;padding:8px 13px;backdrop-filter:blur(4px)}
+.numero .nbx .v{font-size:20px;font-weight:800}
+.numero .nbx .l{font-size:10px;opacity:.9;text-transform:uppercase;letter-spacing:.5px}
+/* KPI */
+.kpi{position:relative;overflow:hidden}
+.kpi .lbl{font-size:12px;color:var(--ink-soft);font-weight:600;display:flex;align-items:center;gap:6px}
+.kpi .num{font-size:30px;font-weight:800;color:var(--mauve-deep);margin-top:6px;line-height:1}
+.kpi .meta{font-size:11.5px;margin-top:6px;color:var(--ink-soft)}
+.kpi .meta b{color:var(--sage)}
+.kpi .deco{position:absolute;right:-8px;top:-8px;font-size:52px;opacity:.08}
+.kpi.g .num{color:var(--gold)}
+.progress{height:7px;background:var(--mauve-pale);border-radius:6px;overflow:hidden;margin-top:9px}
+.progress > i{display:block;height:100%;background:linear-gradient(90deg,var(--mauve),var(--gold));border-radius:6px}
+/* buttons */
+.btn{border:0;border-radius:12px;padding:10px 15px;font-size:13.5px;font-weight:600;cursor:pointer;background:var(--mauve);color:#fff;transition:.15s;display:inline-flex;align-items:center;gap:6px;min-height:40px}
+.btn:active{transform:scale(.97)}
+.btn:hover{filter:brightness(1.05)}
+.btn.ghost{background:var(--mauve-pale);color:var(--mauve-deep)}
+.btn.gold{background:var(--gold)}
+.btn.danger{background:var(--bad)}
+.btn.sm{padding:7px 11px;font-size:12.5px;border-radius:10px;min-height:34px}
+/* tables */
+.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--ink-soft);padding:10px 12px;border-bottom:2px solid var(--line);font-weight:700;white-space:nowrap}
+td{padding:12px;border-bottom:1px solid var(--line);vertical-align:middle}
+tbody tr:active{background:var(--mauve-pale)}
+td[contenteditable]{outline:none;border-radius:6px}
+td[contenteditable]:focus{background:var(--gold-pale);box-shadow:inset 0 0 0 2px var(--gold-soft)}
+.tag{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap}
+.tag.ok{background:#E7F2E7;color:#5E8A5E}.tag.warn{background:#FCF0DE;color:#B5862F}
+.tag.bad{background:#FBE7EA;color:#B5566A}.tag.info{background:#E9ECF8;color:#5A66A8}
+.tag.mauve{background:var(--mauve-pale);color:var(--mauve-deep)}.tag.gold{background:var(--gold-pale);color:var(--gold)}
+.sel{border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:13px;background:#fff;color:var(--ink);min-height:38px}
+/* kanban */
+.kanban{display:flex;gap:14px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:14px}
+.col{min-width:230px;flex:1;background:var(--mauve-pale);border-radius:var(--r);padding:12px}
+.col h4{font-size:12.5px;display:flex;align-items:center;gap:7px;margin-bottom:10px;color:var(--mauve-deep)}
+.col h4 .dot{width:9px;height:9px;border-radius:50%}
+.col h4 .ct{margin-left:auto;background:#fff;color:var(--ink-soft);border-radius:10px;font-size:10px;padding:1px 7px}
+.lead{background:#fff;border-radius:12px;padding:12px;margin-bottom:9px;box-shadow:var(--shadow-sm);border-left:3px solid var(--mauve)}
+.lead .co{font-weight:700;font-size:13.5px;color:var(--mauve-deep)}
+.lead .ct2{font-size:11.5px;color:var(--ink-soft);margin-top:1px}
+.lead .row{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;align-items:center}
+.lead .val{margin-left:auto;font-weight:700;color:var(--gold);font-size:12px}
+.lead .nxt{font-size:11px;color:var(--ink-soft);margin-top:7px;border-top:1px dashed var(--line);padding-top:7px}
+.lead .move{margin-top:8px;display:flex;gap:6px;align-items:center}
+.lead .move select{flex:1;border:1px solid var(--line);border-radius:9px;padding:6px;font-size:11.5px;background:#FCF7FB;color:var(--mauve-deep);min-height:34px}
+.lead .x{border:0;background:var(--mauve-pale);color:var(--mauve-deep);border-radius:8px;width:32px;height:32px;font-size:13px;cursor:pointer}
+/* lists / todos */
+.todo{display:flex;align-items:flex-start;gap:11px;padding:11px 0;border-bottom:1px solid var(--line)}
+.todo:last-child{border:0}
+.check{width:24px;height:24px;min-width:24px;border-radius:8px;border:2px solid var(--mauve-soft);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff;transition:.15s;margin-top:1px}
+.check.on{background:linear-gradient(135deg,var(--mauve),var(--gold));border-color:transparent}
+.todo .t{flex:1;font-size:14px}
+.todo.done .t{text-decoration:line-through;color:var(--ink-soft)}
+.todo .when{font-size:11.5px;color:var(--ink-soft);margin-top:2px}
+.todo .x{border:0;background:transparent;color:var(--ink-soft);font-size:16px;cursor:pointer;padding:4px 8px;border-radius:8px}
+.muted{color:var(--ink-soft)}
+.flex{display:flex;align-items:center;gap:10px}
+.between{justify-content:space-between}
+.wrap{flex-wrap:wrap}
+textarea.note{width:100%;min-height:120px;border:1px solid var(--line);border-radius:12px;padding:14px;font-size:14px;resize:vertical;color:var(--ink);background:#FCF9FC}
+textarea.note:focus{outline:none;border-color:var(--mauve-soft);box-shadow:0 0 0 3px var(--mauve-pale)}
+.input{border:1px solid var(--line);border-radius:11px;padding:10px 13px;font-size:14px;color:var(--ink);background:#fff;min-height:42px}
+.input:focus{outline:none;border-color:var(--mauve-soft);box-shadow:0 0 0 3px var(--mauve-pale)}
+.bar-row{display:flex;align-items:center;gap:12px;margin-bottom:13px}
+.bar-row .nm{width:150px;font-size:13px;font-weight:600}
+.bar-row .track{flex:1;height:14px;background:var(--mauve-pale);border-radius:8px;overflow:hidden}
+.bar-row .track > i{display:block;height:100%;border-radius:8px;background:linear-gradient(90deg,var(--mauve),var(--gold));transition:width .5s}
+.bar-row .vv{width:110px;text-align:right;font-size:12px;color:var(--ink-soft);font-weight:600}
+.chip{background:var(--mauve-pale);color:var(--mauve-deep);border-radius:20px;padding:6px 13px;font-size:12.5px;font-weight:600;display:inline-flex;align-items:center;gap:6px}
+.empty{text-align:center;color:var(--ink-soft);padding:26px;font-size:13px}
+.callout{background:var(--gold-pale);border:1px solid var(--gold-soft);border-radius:14px;padding:13px 16px;font-size:13.5px;color:#8a6d2f}
+.callout b{color:var(--gold)}
+.pk{font-size:11px;font-weight:700;padding:2px 8px;border-radius:8px;white-space:nowrap}
+.pk.sig{background:var(--mauve-pale);color:var(--mauve-deep)}
+.pk.ess{background:var(--gold-pale);color:var(--gold)}
+.mini-stat{text-align:center;padding:16px;background:#FCF7FB;border-radius:14px}
+.mini-stat .n{font-size:25px;font-weight:800;color:var(--mauve-deep)}
+.mini-stat .l{font-size:11px;color:var(--ink-soft);margin-top:3px}
+.acc{border:1px solid var(--line);border-radius:14px;margin-bottom:10px;overflow:hidden;background:#fff}
+.acc summary{padding:15px 16px;font-weight:700;cursor:pointer;color:var(--mauve-deep);list-style:none;display:flex;align-items:center;gap:10px;min-height:48px}
+.acc summary::-webkit-details-marker{display:none}
+.acc summary::before{content:'▸';color:var(--mauve);transition:.2s}
+.acc[open] summary::before{transform:rotate(90deg)}
+.acc .body{padding:0 16px 16px;font-size:14px;color:var(--ink)}
+.acc .body ul{margin-left:18px;margin-top:6px}
+.acc .body li{margin-bottom:5px}
+/* Tasks */
+.quickadd{display:flex;gap:8px;flex-wrap:wrap;align-items:center;background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px;box-shadow:var(--shadow-sm)}
+.quickadd input.input{flex:1;min-width:180px}
+.whenchips{display:flex;gap:6px;flex-wrap:wrap}
+.wchip{border:1px solid var(--line);background:#fff;color:var(--ink-soft);border-radius:20px;padding:7px 12px;font-size:12.5px;font-weight:600;cursor:pointer;min-height:36px}
+.wchip.on{background:var(--mauve);color:#fff;border-color:transparent}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}
+.tab{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:20px;padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer;min-height:40px}
+.tab.on{background:linear-gradient(135deg,var(--mauve),var(--mauve-soft));color:#fff;border-color:transparent}
+.bucket{margin-top:18px}
+.bucket h3{font-size:14px;display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.bucket h3 .ct{background:var(--mauve-pale);color:var(--mauve-deep);border-radius:10px;font-size:11px;padding:1px 8px}
+.bucket.overdue h3{color:var(--bad)}
+.task-cat{font-size:10px;font-weight:700;padding:2px 7px;border-radius:7px;margin-left:6px}
+.task-cat.Tarea{background:var(--mauve-pale);color:var(--mauve-deep)}
+.task-cat.Idea{background:var(--gold-pale);color:var(--gold)}
+.task-cat.Aprender{background:#E9ECF8;color:#5A66A8}
+.task-cat.Proyecto{background:var(--sage-pale);color:#5E8A5E}
+/* Calendar */
+.cal-head{display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.cal-head h2{font-size:18px;text-transform:capitalize}
+.cal-nav{border:0;background:var(--mauve-pale);color:var(--mauve-deep);width:40px;height:40px;border-radius:12px;font-size:18px;cursor:pointer}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
+.cal-dow{text-align:center;font-size:11px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;padding-bottom:4px}
+.cal-cell{background:#fff;border:1px solid var(--line);border-radius:12px;min-height:78px;padding:7px;cursor:pointer;transition:.12s;display:flex;flex-direction:column}
+.cal-cell:active{background:var(--mauve-pale)}
+.cal-cell.out{opacity:.35}
+.cal-cell.today{border-color:var(--mauve);box-shadow:0 0 0 2px var(--mauve-pale)}
+.cal-cell.sel{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold-pale)}
+.cal-cell .dn{font-size:13px;font-weight:700;color:var(--ink)}
+.cal-cell .dots{margin-top:auto;display:flex;gap:3px;flex-wrap:wrap}
+.cal-cell .cdot{font-size:10px;font-weight:700;border-radius:6px;padding:1px 5px}
+.cal-cell .cdot.t{background:var(--mauve-pale);color:var(--mauve-deep)}
+.cal-cell .cdot.m{background:var(--gold-pale);color:var(--gold)}
+/* Responsive */
+@media(max-width:1000px){.g4{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:900px){
+  .sidebar{transform:translateX(-100%);box-shadow:var(--shadow)}
+  .sidebar.open{transform:translateX(0)}
+  .sidebar.open ~ .scrim{display:block}
+  .main{margin-left:0}
+  .menu-btn{display:flex;align-items:center;justify-content:center}
+  .g2,.g3{grid-template-columns:1fr}
+  .cal-cell{min-height:64px}
+  .view{padding:18px 16px 70px}
+  .topbar{padding:12px 16px}
+}
+@media(max-width:560px){
+  .g4{grid-template-columns:1fr 1fr}
+  .greet{display:none}
+  .cal-grid{gap:5px}.cal-cell{min-height:54px;padding:5px}
+}
+</style>
+</head>
+<body>
+<!-- LOGIN -->
+<div class="login" id="login">
+  <div class="login-card" id="loginCard">
+    <div class="login-mark">✿</div>
+    <h1>Churri</h1>
+    <div class="hi" id="loginHi"></div>
+    <div class="login-num" id="loginNum"></div>
+    <div class="login-form">
+      <input type="password" id="pwd" placeholder="Tu contraseña ✨" autocomplete="off" onkeydown="if(event.key==='Enter')doLogin()">
+      <button onclick="doLogin()">Entrar a mi mundo 💜</button>
+      <div class="login-err" id="loginErr"></div>
+    </div>
+    <div class="login-foot">Hecho con cariño para ti ✿</div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-ov" id="modalOv" onclick="if(event.target===this)closeModal()">
+  <div class="modal-card">
+    <h3 id="modalTitle"></h3>
+    <div class="m-sub" id="modalSub"></div>
+    <div id="modalBody"></div>
+    <div class="modal-actions">
+      <button class="btn ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn" id="modalSave" onclick="modalDoSave()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="app locked" id="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="logo"><div class="mark">G</div><div><div class="name">Churri Studio</div></div></div>
+      <div class="sub">Genesis · KOBO Growth ✿</div>
+    </div>
+    <nav class="nav" id="nav"></nav>
+    <button class="logout" onclick="logout()">Cerrar sesión</button>
+  </aside>
+  <div class="scrim" id="scrim" onclick="closeMenu()"></div>
+  <main class="main">
+    <div class="topbar">
+      <button class="menu-btn" onclick="openMenu()">☰</button>
+      <h1 id="pageTitle">Inicio</h1>
+      <span class="pill" id="weekPill"></span>
+      <span class="greet" id="greet"></span>
+    </div>
+    <div id="views"></div>
+  </main>
+</div>
+
+<script>
+/* ============ NUMEROLOGY (8 feb 1997) ============ */
+const reduceN=n=>{while(n>9){n=String(n).split('').reduce((s,d)=>s+(+d),0);}return n;};
+const LIFE_PATH=reduceN(8+2+reduceN(1997));
+const BIRTHDAY_NUM=8;
+const LUCKY=8;
+const AFFIRMATIONS=[
+ 'Tu número 8 es el de la abundancia y el dinero 💰 — naciste para cerrar y prosperar.',
+ 'Hoy tu energía 9 te hace visionaria: ves el cuadro completo que otros no ven.',
+ 'El 8 es infinito acostado: tus oportunidades no se acaban, se multiplican. ✨',
+ 'Eres imán de éxito y prosperidad. Lo que tocas, crece. 🌷',
+ 'Tu camino 9 es de liderazgo y sabiduría — la gente confía en ti naturalmente.',
+ 'Abundancia es tu estado natural, Churri. Hoy llega más de lo que esperas.',
+ '8 = poder y logro material. Tú cierras lo que te propones. 💜',
+ 'Tu visión (9) + tu fuerza de cierre (8) = combinación imparable.',
+ 'Cada "no" te acerca a un gran "sí". El universo te respalda. ⭐',
+ 'Naciste para construir algo grande. Hoy das un paso más. 👑',
+];
+const todayAff=()=>{const d=new Date();const doy=Math.floor((d-new Date(d.getFullYear(),0,0))/86400000);return AFFIRMATIONS[doy%AFFIRMATIONS.length];};
+
+/* ============ AUTH ============ */
+const PASS='CHURRIS2026!';
+const AUTH_KEY='churri_auth_v1';
+function buildLogin(){
+  const h=new Date().getHours();
+  const saludo=h<12?'Buenos días':h<19?'Buenas tardes':'Buenas noches';
+  document.getElementById('loginHi').innerHTML=`${saludo}, <b>Genesis</b> ✿<br>Hoy es un gran día para brillar y cerrar. 💜`;
+  document.getElementById('loginNum').innerHTML=
+    `<div class="nb"><div class="v">${BIRTHDAY_NUM}</div><div class="l">Abundancia</div></div>`+
+    `<div class="nb"><div class="v">${LIFE_PATH}</div><div class="l">Visión</div></div>`+
+    `<div class="nb"><div class="v">${LUCKY}</div><div class="l">Nº suerte</div></div>`;
+}
+function doLogin(){
+  const v=document.getElementById('pwd').value;
+  if(v===PASS){
+    try{localStorage.setItem(AUTH_KEY,'1');}catch(e){}
+    document.getElementById('login').style.display='none';
+    document.getElementById('app').classList.remove('locked');
+    startApp();
+  }else{
+    const c=document.getElementById('loginCard');
+    c.classList.remove('shake');void c.offsetWidth;c.classList.add('shake');
+    document.getElementById('loginErr').textContent='Contraseña incorrecta, intenta de nuevo ✨';
+  }
+}
+function logout(){try{localStorage.removeItem(AUTH_KEY);}catch(e){}location.reload();}
+window.doLogin=doLogin;window.logout=logout;
+
+/* ============ DATE HELPERS ============ */
+const todayStr=()=>{const d=new Date();d.setHours(0,0,0,0);return iso(d);};
+const iso=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const addDays=n=>{const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()+n);return iso(d);};
+const diffDays=(a,b)=>Math.round((new Date(b+'T00:00:00')-new Date(a+'T00:00:00'))/86400000);
+const MONTHS=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+const DOW=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+const fmtDate=s=>{if(!s)return '';const d=new Date(s+'T00:00:00');if(isNaN(d.getTime()))return String(s);return `${d.getDate()} ${MONTHS[d.getMonth()].slice(0,3)}`;};
+
+/* ============ DATA ============ */
+const DB_KEY='churri_dash_v2';
+const seed=()=>({
+  meta:{name:'Genesis', commissionPct:10},
+  tasks:[
+    {id:1,t:'Llamar a Bottega para upsell de paquete Signature',done:false,cat:'Tarea',due:todayStr()},
+    {id:2,t:'Enviar follow-up #2 a 8 cuentas de Data Centers',done:false,cat:'Tarea',due:todayStr()},
+    {id:3,t:'Preparar pitch deck para reunión con TelMex',done:false,cat:'Tarea',due:todayStr()},
+    {id:4,t:'Revisar respuestas nuevas en Apollo',done:true,cat:'Tarea',due:todayStr()},
+    {id:5,t:'Armar nueva secuencia para Fintech',done:false,cat:'Proyecto',due:addDays(1)},
+    {id:6,t:'Grabar testimonial con Ana de Bottega',done:false,cat:'Proyecto',due:addDays(2)},
+    {id:7,t:'Planear contenido de LinkedIn de la semana',done:false,cat:'Tarea',due:addDays(4)},
+    {id:8,t:'Aprender bien los filtros avanzados de Apollo',done:false,cat:'Aprender',due:addDays(3)},
+    {id:9,t:'Estudiar manejo de objeciones de precio',done:false,cat:'Aprender',due:null},
+    {id:10,t:'Webinar "growth para founders" como imán de leads',done:false,cat:'Idea',due:null},
+    {id:11,t:'Serie de video corto para Hospitality',done:false,cat:'Idea',due:null},
+    {id:12,t:'Mandar propuesta a SaaSly (prometida)',done:false,cat:'Tarea',due:addDays(-1)},
+  ],
+  kpiTargets:{emails:300, replies:30, meetings:6, leads:10, proposals:3, closes:1},
+  pipeline:[
+    {id:1,co:'TelMex Soluciones',contact:'Laura Méndez',role:'Dir. Marketing',ind:'Telecom',src:'Apollo',pkg:'Signature',val:5000,stage:'meeting',last:'2026-06-14',next:'Pitch deck',nextDate:'2026-06-16',notes:'Muy interesada, quiere ver casos.'},
+    {id:2,co:'DataNova',contact:'Carlos Ruiz',role:'CEO',ind:'Data Centers',src:'Apollo',pkg:'Signature',val:5000,stage:'responded',last:'2026-06-13',next:'Agendar discovery',nextDate:'2026-06-17',notes:'Respondió positivo.'},
+    {id:3,co:'Bottega Café',contact:'Ana Torres',role:'Founder',ind:'Hospitality',src:'Referido',pkg:'Essential',val:3000,stage:'won',last:'2026-05-20',next:'Upsell Signature',nextDate:'2026-06-16',notes:'Cliente activo. Feliz.'},
+    {id:4,co:'SaaSly',contact:'Diego P.',role:'Head Growth',ind:'SaaS',src:'Apollo',pkg:'Signature',val:5000,stage:'proposal',last:'2026-06-12',next:'Enviar propuesta',nextDate:'2026-06-15',notes:'Claudia cerrando.'},
+    {id:5,co:'Hotel Mariposa',contact:'Sofía L.',role:'GM',ind:'Hospitality',src:'Apollo',pkg:'Essential',val:3000,stage:'contacted',last:'2026-06-09',next:'Follow-up #2',nextDate:'2026-06-16',notes:'Sin respuesta.'},
+    {id:6,co:'FinPay',contact:'Marco V.',role:'CMO',ind:'Fintech',src:'Apollo',pkg:'Signature',val:5000,stage:'new',last:'2026-06-15',next:'Investigar y contactar',nextDate:'2026-06-16',notes:'En research.'},
+    {id:7,co:'ShopVerde',contact:'Reni M.',role:'Owner',ind:'E-commerce',src:'LinkedIn',pkg:'Essential',val:3000,stage:'nurture',last:'2026-05-30',next:'Nutrir con newsletter',nextDate:'2026-06-20',notes:'Recontactar Q3.'},
+  ],
+  industries:[
+    {cat:'Data Centers',emails:42,replies:6,meetings:2,leads:3},
+    {cat:'Telecom',emails:38,replies:5,meetings:1,leads:2},
+    {cat:'SaaS',emails:55,replies:8,meetings:1,leads:1},
+    {cat:'Real Estate',emails:20,replies:1,meetings:0,leads:0},
+    {cat:'Hospitality',emails:30,replies:4,meetings:0,leads:1},
+    {cat:'Healthcare',emails:18,replies:1,meetings:0,leads:0},
+    {cat:'Fintech',emails:25,replies:3,meetings:0,leads:0},
+    {cat:'Marketing Agencies',emails:12,replies:0,meetings:0,leads:0},
+    {cat:'E-commerce',emails:28,replies:4,meetings:0,leads:1},
+  ],
+  sequences:[
+    {name:'Growth sin agencia',sent:120,replies:14,positive:6,running:true},
+    {name:'Caso Bottega +37%',sent:80,replies:9,positive:5,running:true},
+    {name:'Outbound frío clásico',sent:60,replies:3,positive:1,running:false},
+  ],
+  subjects:[
+    {s:'¿Tu marca o tu competencia?',rate:'9.2%'},
+    {s:'Crecimiento sin contratar agencia',rate:'7.8%'},
+    {s:'Lo que hicimos con Bottega',rate:'6.5%'},
+    {s:'Idea rápida para {empresa}',rate:'4.1%'},
+  ],
+  meetings:[
+    {date:'2026-06-16',time:'16:00',co:'TelMex Soluciones',contact:'Laura Méndez',type:'Pitch',status:'upcoming',link:'meet.google.com/abc',prep:'Llevar caso Bottega + pricing anclado'},
+    {date:'2026-06-17',time:'10:00',co:'DataNova',contact:'Carlos Ruiz',type:'Discovery',status:'upcoming',link:'zoom.us/j/123',prep:'Preguntas de dolor sobre adquisición'},
+    {date:'2026-06-18',time:'12:00',co:'Clínica Sur',contact:'Dr. Vega',type:'Follow-up',status:'upcoming',link:'',prep:'Retomar conversación'},
+    {date:'2026-06-12',time:'11:00',co:'SaaSly',contact:'Diego P.',type:'Discovery',status:'done',link:'',prep:'Resultado: calificado, pasa a propuesta'},
+  ],
+  handoff:[
+    {co:'SaaSly',contact:'Diego P.',pkg:'Signature',val:5000,context:'Discovery hecho. Dolor: CAC alto, sin equipo de outbound. Quiere empezar en julio. Presupuesto confirmado.',date:'2026-06-12',status:'En propuesta'},
+    {co:'TelMex Soluciones',contact:'Laura Méndez',pkg:'Signature',val:5000,context:'Reunión de pitch hoy 16:00. Muy caliente, pidió ver casos. Decisora directa.',date:'2026-06-16',status:'Reunión hoy'},
+  ],
+  followups:[
+    {name:'Hotel Mariposa',contact:'Sofía L.',stage:'Follow-up #2',due:'2026-06-16',replied:false},
+    {name:'FinPay',contact:'Marco V.',stage:'Follow-up #1',due:'2026-06-16',replied:false},
+    {name:'DataNova',contact:'Carlos Ruiz',stage:'Respondió ✓',due:'-',replied:true},
+    {name:'Clínica Sur',contact:'Dr. Vega',stage:'Follow-up #3',due:'2026-06-18',replied:false},
+  ],
+  content:[
+    {idea:'Carrusel: 5 errores de growth en SaaS',channel:'LinkedIn',owner:'Genesis',design:'✓',copy:'✓',approved:'Pend',scheduled:'',published:''},
+    {idea:'Newsletter: caso Bottega',channel:'Newsletter',owner:'Genesis',design:'Pend',copy:'✓',approved:'Pend',scheduled:'',published:''},
+    {idea:'Post: por qué un growth studio > agencia',channel:'LinkedIn',owner:'Claudia',design:'✓',copy:'✓',approved:'✓',scheduled:'2026-06-18',published:''},
+    {idea:'Blog: anatomía de una secuencia que convierte',channel:'Blog',owner:'Genesis',design:'-',copy:'Pend',approved:'-',scheduled:'',published:''},
+  ],
+  clients:[
+    {co:'Bottega Café',service:'Essential',amount:3000,status:'Activo',next:'Upsell a Signature',owner:'Genesis'},
+  ],
+  hitlist:[
+    {co:'Equinix',ind:'Data Centers',why:'Líder del sector, alto ticket',status:'Soñada'},
+    {co:'Kavak',ind:'E-commerce',why:'Escalando rápido, necesita growth',status:'Investigando'},
+    {co:'Clip',ind:'Fintech',why:'Marca aspiracional KOBO',status:'Soñada'},
+  ],
+  notes:'Ideas sueltas ✿\n\n- Probar campaña de video corto para Hospitality\n- Pedirle a Bottega un testimonial en video\n- Webinar "growth para founders" como imán de leads\n',
+  ideas:[
+    {type:'Competidor',t:'Agencia X bajó precios, ahora $2.5K — diferenciarnos por resultados'},
+    {type:'Campaña',t:'Serie "detrás del growth" mostrando proceso real'},
+    {type:'Herramienta',t:'Probar Smartlead además de Apollo para volumen'},
+    {type:'Tendencia',t:'Founders quieren menos retainers, más performance'},
+  ],
+});
+let DB=JSON.parse(localStorage.getItem(DB_KEY)||'null')||seed();
+DB.meta=DB.meta||{name:'Genesis'}; if(DB.meta.commissionPct==null)DB.meta.commissionPct=10;
+['tasks','kpiTargets','pipeline','industries','sequences','subjects','meetings','handoff','followups','content','clients','hitlist','ideas'].forEach(k=>{if(!DB[k])DB[k]=seed()[k];});
+if(DB.notes==null)DB.notes=seed().notes;
+const save=()=>{try{localStorage.setItem(DB_KEY,JSON.stringify(DB));}catch(e){}};
+const $=s=>document.querySelector(s);
+const pct=(a,b)=>b?Math.min(100,Math.round(a/b*100)):0;
+const money=n=>'$'+Number(n||0).toLocaleString('en-US');
+const esc=s=>(s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const num=v=>{const n=parseFloat(v);return isNaN(n)?0:n;};
+
+/* ============ MODAL SYSTEM ============ */
+let _modalSave=null;
+function closeModal(){document.getElementById('modalOv').classList.remove('show');_modalSave=null;}
+function modalDoSave(){if(_modalSave)_modalSave();}
+window.closeModal=closeModal;window.modalDoSave=modalDoSave;
+function openForm(opts){
+  document.getElementById('modalTitle').textContent=opts.title||'';
+  const sub=document.getElementById('modalSub');
+  sub.textContent=opts.sub||''; sub.style.display=opts.sub?'block':'none';
+  const saveBtn=document.getElementById('modalSave');
+  saveBtn.textContent=opts.saveLabel||'Guardar';
+  saveBtn.className='btn'+(opts.danger?' danger':'');
+  const fields=opts.fields||[];
+  document.getElementById('modalBody').innerHTML=fields.map(f=>{
+    const id='mf_'+f.key; let input;
+    if(f.type==='select'){
+      input=`<select class="m-in" id="${id}">`+ (f.options||[]).map(o=>{const v=(typeof o==='object')?o.v:o;const l=(typeof o==='object')?o.l:o;const selV=(f.value!=null?f.value:(fields,''));return `<option value="${esc(v)}" ${String(v)===String(f.value!=null?f.value:'')?'selected':''}>${esc(l)}</option>`;}).join('') +`</select>`;
+    } else if(f.type==='textarea'){
+      input=`<textarea class="m-in" id="${id}" placeholder="${esc(f.placeholder||'')}">${esc(f.value!=null?f.value:'')}</textarea>`;
+    } else {
+      const enter=`onkeydown="if(event.key==='Enter')modalDoSave()"`;
+      input=`<input class="m-in" id="${id}" type="${f.type||'text'}" value="${esc(f.value!=null?f.value:'')}" placeholder="${esc(f.placeholder||'')}" ${f.type==='number'?'inputmode="decimal"':''} ${enter}>`;
+    }
+    return `<label class="m-field"><span>${esc(f.label)}${f.required?' *':''}</span>${input}</label>`;
+  }).join('');
+  _modalSave=()=>{
+    const vals={}; let bad=false;
+    fields.forEach(f=>{const el=document.getElementById('mf_'+f.key); let v=el.value;
+      if(f.required && !String(v).trim()){el.classList.add('err');bad=true;} else el.classList.remove('err');
+      if(f.type==='number')v=num(v); else if(typeof v==='string')v=v.trim();
+      vals[f.key]=v;});
+    if(bad)return;
+    opts.onSave(vals); closeModal();
+  };
+  document.getElementById('modalOv').classList.add('show');
+  setTimeout(()=>{const first=document.querySelector('#modalBody .m-in');if(first){try{first.focus();}catch(e){}}},90);
+}
+function openConfirm(msg,onYes){
+  document.getElementById('modalTitle').textContent='Confirmar';
+  const sub=document.getElementById('modalSub'); sub.style.display='none';
+  document.getElementById('modalBody').innerHTML=`<p class="m-msg">${esc(msg)}</p>`;
+  const saveBtn=document.getElementById('modalSave'); saveBtn.textContent='Sí, eliminar'; saveBtn.className='btn danger';
+  _modalSave=()=>{onYes();closeModal();};
+  document.getElementById('modalOv').classList.add('show');
+}
+window.openForm=openForm;window.openConfirm=openConfirm;
+const INDUSTRIES=['Data Centers','Telecom','SaaS','Real Estate','Hospitality','Healthcare','Fintech','Marketing Agencies','E-commerce','Otro'];
+
+/* ============ METRICS ============ */
+function metrics(){
+  const ind=DB.industries.reduce((a,x)=>({emails:a.emails+num(x.emails),replies:a.replies+num(x.replies),meetings:a.meetings+num(x.meetings),leads:a.leads+num(x.leads)}),{emails:0,replies:0,meetings:0,leads:0});
+  const won=DB.pipeline.filter(p=>p.stage==='won');
+  const proposals=DB.pipeline.filter(p=>p.stage==='proposal');
+  const activePipe=DB.pipeline.filter(p=>!['won','lost'].includes(p.stage));
+  const inProcess=DB.pipeline.filter(p=>['responded','meeting','proposal'].includes(p.stage));
+  const positives=DB.sequences.reduce((s,x)=>s+num(x.positive),0);
+  const cpct=num(DB.meta.commissionPct)||10;
+  const wonVal=won.reduce((s,p)=>s+num(p.val),0);
+  const commission=Math.round(wonVal*cpct/100);
+  const revenue=DB.clients.filter(c=>c.status==='Activo').reduce((s,c)=>s+num(c.amount),0);
+  const pipelineValue=activePipe.reduce((s,p)=>s+num(p.val),0);
+  const t=DB.tasks;
+  return {
+    emails:ind.emails, replies:ind.replies, indMeetings:ind.meetings, leads:ind.leads,
+    positives, meetingsAll:DB.meetings.length, meetingsUp:DB.meetings.filter(m=>m.status==='upcoming').length, meetingsDone:DB.meetings.filter(m=>m.status==='done').length,
+    won:won.length, wonVal, commission, revenue, pipelineValue,
+    proposals:proposals.length, activePipe:activePipe.length, inProcess:inProcess.length,
+    replyRate:ind.emails?Math.round(ind.replies/ind.emails*100):0,
+    handoffs:DB.handoff.length, clients:DB.clients.filter(c=>c.status==='Activo').length,
+    tasksDone:t.filter(x=>x.done).length, tasksOpen:t.filter(x=>!x.done).length,
+    tasksOverdue:t.filter(x=>!x.done&&x.due&&diffDays(todayStr(),x.due)<0).length,
+    tasksToday:t.filter(x=>x.due&&diffDays(todayStr(),x.due)===0),
+    projects:t.filter(x=>x.cat==='Proyecto'&&!x.done).length,
+  };
+}
+
+/* ============ NAV ============ */
+const NAV=[
+ {grp:'Vista rápida',items:[
+   {id:'home',ico:'🏠',label:'Inicio'},
+   {id:'today',ico:'✅',label:'Mis Tareas'},
+   {id:'calendar',ico:'🗓️',label:'Calendario'},
+   {id:'analytics',ico:'📊',label:'Analytics'},
+ ]},
+ {grp:'Motor diario',items:[
+   {id:'pipeline',ico:'💜',label:'Pipeline / CRM'},
+   {id:'prospecting',ico:'🚀',label:'Prospecting · Apollo'},
+   {id:'followup',ico:'🔁',label:'Follow-Up Center'},
+   {id:'meetings',ico:'📅',label:'Reuniones'},
+   {id:'handoff',ico:'🤝',label:'Listo para Claudia'},
+   {id:'goals',ico:'🎯',label:'Metas / KPIs'},
+ ]},
+ {grp:'Crecimiento',items:[
+   {id:'content',ico:'✨',label:'Content Calendar'},
+   {id:'hitlist',ico:'⭐',label:'Hit List + ICP'},
+   {id:'clients',ico:'🌷',label:'Clientes activos'},
+   {id:'playbook',ico:'📖',label:'Playbook'},
+ ]},
+ {grp:'Personal',items:[
+   {id:'notes',ico:'💭',label:'Notas / Ideas'},
+   {id:'ceo',ico:'👑',label:'Clau Dashboard'},
+ ]},
+];
+function buildNav(){
+  const n=$('#nav'); n.innerHTML='';
+  NAV.forEach(g=>{
+    const h=document.createElement('div');h.className='grp';h.textContent=g.grp;n.appendChild(h);
+    g.items.forEach(it=>{
+      const b=document.createElement('button');b.dataset.view=it.id;
+      let badge='';
+      if(it.id==='today'){const c=DB.tasks.filter(t=>!t.done&&t.due&&diffDays(todayStr(),t.due)<=0).length;if(c)badge=`<span class="badge">${c}</span>`;}
+      if(it.id==='handoff'&&DB.handoff.length)badge=`<span class="badge">${DB.handoff.length}</span>`;
+      if(it.id==='followup'){const due=DB.followups.filter(f=>!f.replied).length;if(due)badge=`<span class="badge">${due}</span>`;}
+      b.innerHTML=`<span class="ico">${it.ico}</span><span class="lbl">${it.label}</span>${badge}`;
+      b.onclick=()=>{go(it.id);closeMenu();};
+      if(it.id===current)b.classList.add('active');
+      n.appendChild(b);
+    });
+  });
+}
+const TITLES={home:'Inicio',today:'Mis Tareas',calendar:'Calendario',analytics:'Analytics',pipeline:'Pipeline / CRM',prospecting:'Prospecting · Apollo',followup:'Follow-Up Center',meetings:'Reuniones',handoff:'Listo para Claudia 🤝',goals:'Metas / KPIs',content:'Content Calendar',hitlist:'Hit List + Cliente ideal',clients:'Clientes activos',playbook:'Playbook / Recursos',notes:'Notas / Ideas',ceo:'Clau Dashboard 👑'};
+let current='home';
+function go(v){current=v;$('#pageTitle').textContent=TITLES[v];render();window.scrollTo(0,0);}
+function openMenu(){$('#sidebar').classList.add('open');}
+function closeMenu(){$('#sidebar').classList.remove('open');}
+window.openMenu=openMenu;window.closeMenu=closeMenu;window.go=go;
+
+/* ============ RENDER ============ */
+function render(){
+  const map={home:viewHome,today:viewToday,calendar:viewCalendar,analytics:viewAnalytics,pipeline:viewPipeline,prospecting:viewProspecting,followup:viewFollowup,meetings:viewMeetings,handoff:viewHandoff,goals:viewGoals,content:viewContent,hitlist:viewHitlist,clients:viewClients,playbook:viewPlaybook,notes:viewNotes,ceo:viewCEO};
+  $('#views').innerHTML=`<div class="view">${map[current]()}</div>`;
+  if(current==='pipeline')wirePipeline();
+  if(current==='notes')wireNotes();
+  buildNav();
+}
+
+/* ============ TASKS ============ */
+let taskFilter='Todas';
+let qaWhen=0, qaCat='Tarea';
+const BUCKETS=[
+  {id:'overdue',name:'Atrasadas',ico:'⚠️',test:d=>d!==null&&d<0},
+  {id:'today',name:'Hoy',ico:'⭐',test:d=>d===0},
+  {id:'tomorrow',name:'Mañana',ico:'🌤️',test:d=>d===1},
+  {id:'soon',name:'Próximos días',ico:'📅',test:d=>d>=2&&d<=3},
+  {id:'week',name:'Esta semana',ico:'🗓️',test:d=>d>=4&&d<=7},
+  {id:'later',name:'Más adelante',ico:'⏳',test:d=>d>7},
+  {id:'someday',name:'Algún día',ico:'💭',test:d=>d===null},
+];
+function taskDelta(t){return t.due==null?null:diffDays(todayStr(),t.due);}
+function viewToday(){
+  const open=DB.tasks.filter(t=>!t.done);
+  const done=DB.tasks.filter(t=>t.done);
+  const cats=['Todas','Tarea','Proyecto','Idea','Aprender'];
+  const filtered=open.filter(t=>taskFilter==='Todas'||t.cat===taskFilter);
+  let body='';
+  BUCKETS.forEach(b=>{
+    const items=filtered.filter(t=>b.test(taskDelta(t)));
+    if(!items.length && b.id!=='today')return;
+    body+=`<div class="bucket ${b.id}"><h3>${b.ico} ${b.name} <span class="ct">${items.length}</span></h3><div class="card" style="margin-top:8px">`;
+    body+= items.length?items.map(taskRow).join(''):'<div class="empty">Nada por aquí ✨</div>';
+    body+=`</div></div>`;
+  });
+  const doneBlock=done.length?`<details class="acc" style="margin-top:20px"><summary>✓ Completadas (${done.length})</summary><div class="body">${done.map(taskRow).join('')}<button class="btn sm ghost" style="margin-top:10px" onclick="clearDone()">Limpiar completadas</button></div></details>`:'';
+  const tabLabel=c=>c==='Todas'?'Todas':c==='Tarea'?'✓ Tareas':c==='Proyecto'?'📁 Proyectos':c==='Idea'?'💡 Ideas':'📚 Aprender';
+  const whenOpts=[[0,'Hoy'],[1,'Mañana'],[3,'+3 días'],[7,'Semana'],[-1,'Sin fecha']];
+  return `
+  <div class="callout" style="margin-bottom:14px">✅ <b>Tu día, estilo To-Do.</b> Escribe, elige cuándo y el tipo, y agrega. Márcala lista al terminar. Todo se sincroniza con tus dashboards.</div>
+  <div style="margin-bottom:6px"><button class="btn gold" onclick="addTaskModal()" style="font-size:15px;padding:13px 20px">✚ Nueva tarea</button></div>
+  <div class="tabs">${cats.map(c=>`<button class="tab ${taskFilter===c?'on':''}" onclick="setFilter('${c}')">${tabLabel(c)}</button>`).join('')}</div>
+  ${body}
+  ${doneBlock}`;
+}
+function taskRow(t){
+  const i=DB.tasks.indexOf(t);
+  const delta=taskDelta(t);
+  let when= t.due==null?'Sin fecha':delta===0?'Hoy':delta===1?'Mañana':delta===-1?'Ayer':delta<0?`Hace ${-delta} días`:`En ${delta} días · ${fmtDate(t.due)}`;
+  return `<div class="todo ${t.done?'done':''}">
+    <div class="check ${t.done?'on':''}" onclick="toggleTask(${i})">${t.done?'✓':''}</div>
+    <div class="t">${esc(t.t)}<span class="task-cat ${t.cat}">${t.cat}</span><div class="when">${t.done?'Completada':'📌 '+when}</div></div>
+    <button class="x" onclick="delTask(${i})">✕</button>
+  </div>`;
+}
+window.setWhen=w=>{qaWhen=w;document.querySelectorAll('#qaWhen .wchip').forEach(c=>c.classList.toggle('on',+c.dataset.w===w));};
+window.setCat=v=>{qaCat=v;};
+window.setFilter=c=>{taskFilter=c;render();};
+window.addTaskModal=()=>openForm({title:'Nueva tarea',sub:'Se agrega a Mis Tareas y al calendario',fields:[{key:'t',label:'¿Que hay que hacer?',required:true,type:'textarea',placeholder:'Tu tarea, idea o proyecto...'},{key:'cuando',label:'¿Cuando?',type:'select',options:[{v:'0',l:'Hoy'},{v:'1',l:'Manana'},{v:'3',l:'En 3 dias'},{v:'7',l:'Esta semana'},{v:'-1',l:'Sin fecha'}],value:'0'},{key:'cat',label:'Tipo',type:'select',options:['Tarea','Proyecto','Idea','Aprender'],value:'Tarea'}],onSave:v=>{const w=parseInt(v.cuando,10);const due=(isNaN(w)||w===-1)?null:addDays(w);DB.tasks.push({id:Date.now(),t:v.t,done:false,cat:v.cat,due});save();render();}});
+let _lastAdd=0;window.addTask=()=>{const now=Date.now();if(now-_lastAdd<450)return;const el=$('#qaText');if(!el)return;const txt=el.value.trim();if(!txt)return;_lastAdd=now;const due=qaWhen===-1?null:addDays(qaWhen);DB.tasks.push({id:Date.now(),t:txt,done:false,cat:qaCat,due});save();render();};
+window.toggleTask=i=>{DB.tasks[i].done=!DB.tasks[i].done;save();render();};
+window.delTask=i=>{DB.tasks.splice(i,1);save();render();};
+window.clearDone=()=>{DB.tasks=DB.tasks.filter(t=>!t.done);save();render();};
+
+/* ============ CALENDAR ============ */
+let calY, calM, calSel=null;
+function initCal(){const d=new Date();calY=d.getFullYear();calM=d.getMonth();}
+function viewCalendar(){
+  if(calY===undefined)initCal();
+  const first=new Date(calY,calM,1);
+  let startDow=(first.getDay()+6)%7;
+  const daysIn=new Date(calY,calM+1,0).getDate();
+  const prevDays=new Date(calY,calM,0).getDate();
+  const cells=[];
+  for(let i=0;i<startDow;i++)cells.push({d:prevDays-startDow+1+i,out:true});
+  for(let d=1;d<=daysIn;d++)cells.push({d,out:false});
+  while(cells.length%7)cells.push({d:cells.length-startDow-daysIn+1,out:true});
+  const today=todayStr();
+  const ds=d=>`${calY}-${String(calM+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+  const grid=cells.map(c=>{
+    if(c.out)return `<div class="cal-cell out"><div class="dn">${c.d}</div></div>`;
+    const date=ds(c.d);
+    const tc=DB.tasks.filter(t=>!t.done&&t.due===date).length;
+    const mc=DB.meetings.filter(m=>m.date===date).length;
+    const cls=`cal-cell${date===today?' today':''}${date===calSel?' sel':''}`;
+    const dots=`${tc?`<span class="cdot t">${tc} ✓</span>`:''}${mc?`<span class="cdot m">${mc} 📅</span>`:''}`;
+    return `<div class="${cls}" onclick="selDay('${date}')"><div class="dn">${c.d}</div><div class="dots">${dots}</div></div>`;
+  }).join('');
+  let detail='';
+  if(calSel){
+    const ts=DB.tasks.filter(t=>t.due===calSel);
+    const ms=DB.meetings.filter(m=>m.date===calSel);
+    detail=`<div class="card" style="margin-top:18px"><h3>📌 ${fmtDateLong(calSel)}</h3>
+      ${ms.length?`<div style="margin-top:10px"><b style="color:var(--gold);font-size:13px">Reuniones</b>${ms.map(m=>`<div class="todo"><span>📅</span><div class="t"><b>${esc(m.co)}</b> · ${m.type}<div class="when">${m.time} · ${esc(m.contact)}</div></div></div>`).join('')}</div>`:''}
+      ${ts.length?`<div style="margin-top:10px"><b style="color:var(--mauve-deep);font-size:13px">Tareas</b>${ts.map(t=>{const i=DB.tasks.indexOf(t);return `<div class="todo ${t.done?'done':''}"><div class="check ${t.done?'on':''}" onclick="toggleTask(${i})">${t.done?'✓':''}</div><div class="t">${esc(t.t)}<span class="task-cat ${t.cat}">${t.cat}</span></div></div>`;}).join('')}</div>`:''}
+      ${!ms.length&&!ts.length?'<div class="empty">Día libre ✨ ¡a prospectar!</div>':''}
+      <button class="btn sm ghost" style="margin-top:12px" onclick="addTaskOn('${calSel}')">+ Tarea este día</button>
+    </div>`;
+  }
+  const prefix=`${calY}-${String(calM+1).padStart(2,'0')}`;
+  const totT=DB.tasks.filter(t=>!t.done && t.due && t.due.startsWith(prefix)).length;
+  const totM=DB.meetings.filter(m=>m.date.startsWith(prefix)).length;
+  return `
+  <div class="cal-head">
+    <button class="cal-nav" onclick="calStep(-1)">‹</button>
+    <h2>${MONTHS[calM]} ${calY}</h2>
+    <button class="cal-nav" onclick="calStep(1)">›</button>
+    <button class="btn sm ghost" onclick="calToday()">Hoy</button>
+    <span class="chip" style="margin-left:auto">${totT} tareas · ${totM} reuniones</span>
+  </div>
+  <div class="cal-grid">${DOW.map(d=>`<div class="cal-dow">${d}</div>`).join('')}${grid}</div>
+  ${detail}`;
+}
+function fmtDateLong(s){const d=new Date(s+'T00:00:00');if(isNaN(d.getTime()))return String(s);return `${DOW[(d.getDay()+6)%7]} ${d.getDate()} de ${MONTHS[d.getMonth()]}`;}
+window.calStep=n=>{calM+=n;if(calM<0){calM=11;calY--;}if(calM>11){calM=0;calY++;}calSel=null;render();};
+window.calToday=()=>{initCal();calSel=todayStr();render();};
+window.selDay=d=>{calSel=calSel===d?null:d;render();};
+window.addTaskOn=date=>openForm({title:'Nueva tarea',sub:fmtDateLong(date),fields:[
+  {key:'t',label:'Tarea',required:true,type:'textarea',placeholder:'¿Qué hay que hacer?'},
+  {key:'cat',label:'Tipo',type:'select',options:['Tarea','Proyecto','Idea','Aprender'],value:'Tarea'},
+],onSave:v=>{DB.tasks.push({id:Date.now(),t:v.t,done:false,cat:v.cat,due:date});save();render();}});
+
+/* ============ HOME ============ */
+function kpiCard(lbl,n,deco,meta,cls=''){return `<div class="card kpi ${cls}"><div class="deco">${deco}</div><div class="lbl">${lbl}</div><div class="num">${n}</div>${meta?`<div class="meta">${meta}</div>`:''}</div>`;}
+function viewHome(){
+  const M=metrics(),t=DB.kpiTargets;
+  return `
+  <div class="numero" style="margin-bottom:18px">
+    <div class="spark">✦</div>
+    <h3>✦ Tu energía Churri de hoy ✦</h3>
+    <div class="aff">${todayAff()}</div>
+    <div class="nums">
+      <div class="nbx"><div class="v">${BIRTHDAY_NUM}</div><div class="l">Abundancia · cierre</div></div>
+      <div class="nbx"><div class="v">${LIFE_PATH}</div><div class="l">Visión · liderazgo</div></div>
+      <div class="nbx"><div class="v">${LUCKY}</div><div class="l">Tu nº de suerte</div></div>
+    </div>
+  </div>
+  <div class="grid kpis">
+    ${kpiCard('Prospectos en pipeline',M.activePipe,'💜','Activos ahora')}
+    ${kpiCard('Reuniones próximas',M.meetingsUp,'📅','Agendadas')}
+    ${kpiCard('Emails enviados',`${M.emails}<span style="font-size:14px;color:var(--ink-soft)">/${t.emails}</span>`,'🚀',`<div class="progress"><i style="width:${pct(M.emails,t.emails)}%"></i></div>`)}
+    ${kpiCard('Respuestas positivas',M.positives,'💌','De tus secuencias')}
+    ${kpiCard('Deals en proceso',M.inProcess,'🔥','Claudia cerrando')}
+    ${kpiCard('Comisión ganada',money(M.commission),'👑','10% de deals ganados','g')}
+  </div>
+
+  <div class="g2" style="margin-top:18px">
+    <div class="card soft">
+      <div class="flex between"><h3>⭐ Prioridades de hoy</h3><button class="btn sm" onclick="go('today')">Ver todas</button></div>
+      <div style="margin-top:10px">
+      ${M.tasksToday.length?M.tasksToday.map(t=>{const i=DB.tasks.indexOf(t);return `<div class="todo ${t.done?'done':''}"><div class="check ${t.done?'on':''}" onclick="toggleTask(${i})">${t.done?'✓':''}</div><div class="t">${esc(t.t)}<span class="task-cat ${t.cat}">${t.cat}</span></div></div>`;}).join(''):'<div class="empty">Sin tareas para hoy 🎉</div>'}
+      </div>
+    </div>
+    <div class="card soft">
+      <h3>⏰ Atrasadas</h3>
+      <div style="margin-top:10px">
+      ${(()=>{const ov=DB.tasks.filter(t=>!t.done&&t.due&&diffDays(todayStr(),t.due)<0);return ov.length?ov.map(t=>{const i=DB.tasks.indexOf(t);const dd=-diffDays(todayStr(),t.due);return `<div class="todo"><div class="check" onclick="toggleTask(${i})"></div><div class="t">${esc(t.t)}<div class="when" style="color:var(--bad)">Vencida hace ${dd} día${dd>1?'s':''}</div></div></div>`;}).join(''):'<div class="empty">¡Todo al día! 🎉</div>';})()}
+      </div>
+    </div>
+  </div>
+
+  <div class="g2" style="margin-top:18px">
+    <div class="card">
+      <h3>📅 Reuniones próximas</h3>
+      <div style="margin-top:10px">${todaysMeetings()}</div>
+    </div>
+    <div class="card">
+      <h3>🎯 Meta de la semana</h3>
+      <div style="margin-top:12px">
+        ${miniBar('Emails',M.emails,t.emails)}
+        ${miniBar('Reuniones',M.meetingsAll,t.meetings)}
+        ${miniBar('Leads',M.leads,t.leads)}
+        ${miniBar('Propuestas',M.proposals,t.proposals)}
+      </div>
+    </div>
+  </div>`;
+}
+function todaysMeetings(){
+  const up=DB.meetings.filter(m=>m.status==='upcoming');
+  if(!up.length)return '<div class="empty">Sin reuniones próximas</div>';
+  return up.map(m=>`<div class="todo"><span style="font-size:16px">📌</span><div class="t"><b>${esc(m.co)}</b> · ${m.type}<div class="when">${fmtDate(m.date)} ${m.time} · ${esc(m.contact)}</div></div></div>`).join('');
+}
+function miniBar(nm,a,b){return `<div class="bar-row"><div class="nm">${nm}</div><div class="track"><i style="width:${pct(a,b)}%"></i></div><div class="vv">${a}/${b}</div></div>`;}
+
+/* ============ PIPELINE ============ */
+const STAGES=[
+ {id:'new',name:'Nuevo / Investigación',color:'#C9A8C4'},
+ {id:'contacted',name:'Contactado',color:'#9DA8D4'},
+ {id:'responded',name:'Respondió / Interesado',color:'#E6CF9E'},
+ {id:'meeting',name:'Reunión agendada',color:'#C9A45E'},
+ {id:'proposal',name:'En propuesta',color:'#E5A9BE'},
+ {id:'won',name:'Ganado',color:'#9DB89C'},
+ {id:'lost',name:'Perdido / Nurture',color:'#C9B8C4'},
+];
+function viewPipeline(){
+  const M=metrics();
+  return `
+  <div class="flex between wrap">
+    <div class="callout" style="flex:1;min-width:240px">💜 <b>Tu fuente de verdad.</b> En iPad usa el selector de cada tarjeta para moverla de etapa. Lo que pongas aquí alimenta tus KPIs y la comisión automáticamente.</div>
+    <button class="btn gold" onclick="addLead()" style="margin-left:12px">+ Nuevo prospecto</button>
+  </div>
+  <div class="flex wrap" style="gap:10px;margin:14px 0">
+    <span class="chip">Valor en pipeline: <b>${money(M.pipelineValue)}</b></span>
+    <span class="chip">Prospectos: <b>${DB.pipeline.length}</b></span>
+    <span class="chip">Ganados: <b>${M.won}</b></span>
+    <span class="chip">Comisión: <b>${money(M.commission)}</b></span>
+  </div>
+  <div class="kanban" id="kanban">
+    ${STAGES.map(st=>{
+      const cards=DB.pipeline.filter(p=>p.stage===st.id);
+      return `<div class="col" data-stage="${st.id}">
+        <h4><span class="dot" style="background:${st.color}"></span>${st.name}<span class="ct">${cards.length}</span></h4>
+        ${cards.map(leadCard).join('')||'<div class="empty" style="padding:12px;font-size:12px">—</div>'}
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+function leadCard(p){
+  return `<div class="lead" draggable="true" data-id="${p.id}">
+    <div class="co">${esc(p.co)}</div>
+    <div class="ct2">${esc(p.contact)} · ${esc(p.role)}</div>
+    <div class="row">
+      <span class="tag mauve">${esc(p.ind)}</span>
+      <span class="pk ${p.pkg==='Signature'?'sig':'ess'}">${p.pkg}</span>
+      <span class="val">${money(p.val)}</span>
+    </div>
+    <div class="nxt">➡ ${esc(p.next)} <span style="color:var(--mauve)">· ${fmtDate(p.nextDate)}</span></div>
+    <div class="move">
+      <select onchange="moveLead(${p.id},this.value)">${STAGES.map(s=>`<option value="${s.id}" ${s.id===p.stage?'selected':''}>${s.name}</option>`).join('')}</select>
+      <button class="x" onclick="editLead(${p.id})">✎</button>
+      <button class="x" onclick="delLead(${p.id})">✕</button>
+    </div>
+  </div>`;
+}
+function wirePipeline(){
+  let dragId=null;
+  document.querySelectorAll('.lead').forEach(el=>{
+    el.addEventListener('dragstart',()=>{dragId=+el.dataset.id;el.style.opacity=.4;});
+    el.addEventListener('dragend',()=>el.style.opacity=1);
+  });
+  document.querySelectorAll('.col').forEach(col=>{
+    col.addEventListener('dragover',e=>e.preventDefault());
+    col.addEventListener('drop',e=>{e.preventDefault();const lead=DB.pipeline.find(p=>p.id===dragId);if(lead){lead.stage=col.dataset.stage;save();render();}});
+  });
+}
+window.moveLead=(id,stage)=>{const p=DB.pipeline.find(x=>x.id===id);if(p){p.stage=stage;save();render();}};
+window.delLead=id=>openConfirm('¿Eliminar este prospecto del pipeline?',()=>{DB.pipeline=DB.pipeline.filter(p=>p.id!==id);save();render();});
+window.addLead=()=>openForm({title:'Nuevo prospecto',sub:'Se suma a tu pipeline y KPIs',fields:[
+  {key:'co',label:'Empresa',required:true,placeholder:'Ej. DataNova'},
+  {key:'contact',label:'Contacto',placeholder:'Nombre'},
+  {key:'role',label:'Cargo',placeholder:'Ej. CMO'},
+  {key:'ind',label:'Industria',type:'select',options:INDUSTRIES,value:'SaaS'},
+  {key:'pkg',label:'Paquete de interés',type:'select',options:['Signature','Essential'],value:'Signature'},
+  {key:'val',label:'Valor estimado ($)',type:'number',value:5000},
+  {key:'stage',label:'Etapa',type:'select',options:STAGES.map(s=>({v:s.id,l:s.name})),value:'new'},
+],onSave:v=>{DB.pipeline.push({id:Date.now(),co:v.co,contact:v.contact,role:v.role,ind:v.ind,src:'Apollo',pkg:v.pkg,val:v.val,stage:v.stage,last:todayStr(),next:'Investigar y contactar',nextDate:todayStr(),notes:''});save();render();}});
+window.editLead=id=>{const p=DB.pipeline.find(x=>x.id===id);if(!p)return;openForm({title:'Editar prospecto',sub:p.co,fields:[
+  {key:'next',label:'Próxima acción',value:p.next},
+  {key:'nextDate',label:'Fecha próxima acción',type:'date',value:p.nextDate},
+  {key:'val',label:'Valor ($)',type:'number',value:p.val},
+  {key:'pkg',label:'Paquete',type:'select',options:['Signature','Essential'],value:p.pkg},
+  {key:'notes',label:'Notas',type:'textarea',value:p.notes},
+],onSave:v=>{Object.assign(p,{next:v.next,nextDate:v.nextDate,val:v.val,pkg:v.pkg,notes:v.notes});save();render();}});};
+
+/* ============ PROSPECTING ============ */
+function viewProspecting(){
+  const M=metrics();
+  const best=[...DB.industries].sort((a,b)=>(num(b.replies)/(num(b.emails)||1))-(num(a.replies)/(num(a.emails)||1)))[0]||{cat:'—',emails:0,replies:0};
+  return `
+  <div class="callout">🚀 <b>Tu motor diario.</b> Lo que registres aquí se suma solo a tus KPIs. Toca una celda para editar.</div>
+  <div class="g4" style="margin:16px 0">
+    <div class="mini-stat"><div class="n">${M.emails}</div><div class="l">Emails enviados</div></div>
+    <div class="mini-stat"><div class="n">${M.replies}</div><div class="l">Respuestas (${M.replyRate}%)</div></div>
+    <div class="mini-stat"><div class="n">${M.indMeetings}</div><div class="l">Reuniones</div></div>
+    <div class="mini-stat"><div class="n">${M.leads}</div><div class="l">Leads</div></div>
+  </div>
+  <div class="card">
+    <div class="flex between"><h3>📊 Rendimiento por industria</h3><button class="btn sm ghost" onclick="addIndustry()">+ Categoría</button></div>
+    <div class="tbl-wrap"><table style="margin-top:10px">
+      <thead><tr><th>Categoría</th><th>Emails</th><th>Resp.</th><th>%</th><th>Mtgs</th><th>Leads</th><th>Veredicto</th><th></th></tr></thead>
+      <tbody>
+      ${DB.industries.map((x,i)=>{
+        const rate=pct(num(x.replies),num(x.emails));
+        const verdict=rate>=15?'<span class="tag ok">🔥 Doblar</span>':rate>=8?'<span class="tag warn">Seguir</span>':rate>0?'<span class="tag info">Observar</span>':'<span class="tag bad">Ignorar</span>';
+        return `<tr>
+          <td><b>${esc(x.cat)}</b></td>
+          <td contenteditable inputmode="numeric" oninput="updInd(${i},'emails',this)">${x.emails}</td>
+          <td contenteditable inputmode="numeric" oninput="updInd(${i},'replies',this)">${x.replies}</td>
+          <td><b style="color:var(--mauve-deep)">${rate}%</b></td>
+          <td contenteditable inputmode="numeric" oninput="updInd(${i},'meetings',this)">${x.meetings}</td>
+          <td contenteditable inputmode="numeric" oninput="updInd(${i},'leads',this)">${x.leads}</td>
+          <td>${verdict}</td>
+          <td><button class="btn sm ghost" onclick="delIndustry(${i})">✕</button></td>
+        </tr>`;
+      }).join('')}
+      </tbody>
+    </table></div>
+    <p class="muted" style="font-size:12px;margin-top:10px">⭐ Mejor industria: <b style="color:var(--mauve-deep)">${esc(best.cat)}</b> con ${pct(num(best.replies),num(best.emails))}% de respuesta.</p>
+  </div>
+
+  <div class="g2" style="margin-top:18px">
+    <div class="card">
+      <div class="flex between"><h3>🔄 Secuencias</h3><button class="btn sm ghost" onclick="addSeq()">+ Secuencia</button></div>
+      <div class="tbl-wrap"><table style="margin-top:10px"><thead><tr><th>Secuencia</th><th>Env.</th><th>Resp.</th><th>+</th><th></th><th></th></tr></thead><tbody>
+      ${DB.sequences.map((s,i)=>`<tr>
+        <td contenteditable oninput="updSeq(${i},'name',this)"><b>${esc(s.name)}</b></td>
+        <td contenteditable inputmode="numeric" oninput="updSeq(${i},'sent',this)">${s.sent}</td>
+        <td contenteditable inputmode="numeric" oninput="updSeq(${i},'replies',this)">${s.replies}</td>
+        <td contenteditable inputmode="numeric" oninput="updSeq(${i},'positive',this)" style="color:var(--sage);font-weight:700">${s.positive}</td>
+        <td><button class="btn sm ${s.running?'gold':'ghost'}" onclick="toggleSeq(${i})">${s.running?'▶ Activa':'⏸ Pausa'}</button></td>
+        <td><button class="btn sm ghost" onclick="delSeq(${i})">✕</button></td>
+      </tr>`).join('')}
+      </tbody></table></div>
+      <p class="muted" style="font-size:11.5px;margin-top:8px">Las "respuestas positivas" alimentan tu Inicio. 💌</p>
+    </div>
+    <div class="card">
+      <div class="flex between"><h3>🏆 Subject lines</h3><button class="btn sm ghost" onclick="addSubject()">+ Subject</button></div>
+      <div class="tbl-wrap"><table style="margin-top:10px"><thead><tr><th>Subject</th><th>Reply</th><th></th></tr></thead><tbody>
+      ${DB.subjects.map((s,i)=>`<tr><td contenteditable oninput="updSubject(${i},'s',this)">${i===0?'🥇 ':i===1?'🥈 ':i===2?'🥉 ':''}${esc(s.s)}</td><td contenteditable oninput="updSubject(${i},'rate',this)" style="color:var(--gold);font-weight:700">${esc(s.rate)}</td><td><button class="btn sm ghost" onclick="delSubject(${i})">✕</button></td></tr>`).join('')}
+      </tbody></table></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:18px">
+    <h3>📐 Reglas de outreach KOBO</h3>
+    <div class="g2" style="margin-top:10px;font-size:13.5px">
+      <ul style="margin-left:18px;line-height:1.9">
+        <li>Personaliza la 1ª línea (no "Hola, soy de KOBO").</li>
+        <li>Habla de <b>su</b> dolor, no de nosotros.</li>
+        <li>1 sola pregunta clara como CTA.</li>
+      </ul>
+      <ul style="margin-left:18px;line-height:1.9">
+        <li>Máx 90 palabras. Corto = se lee.</li>
+        <li>Ancla con resultado real (caso Bottega).</li>
+        <li>Follow-up cada 2-3 días, máx 3 veces.</li>
+      </ul>
+    </div>
+  </div>`;
+}
+window.updInd=(i,k,el)=>{DB.industries[i][k]=num(el.textContent);save();};
+window.addIndustry=()=>openForm({title:'Nueva categoría / industria',fields:[{key:'cat',label:'Nombre de la categoría',required:true,placeholder:'Ej. Logística'}],onSave:v=>{DB.industries.push({cat:v.cat,emails:0,replies:0,meetings:0,leads:0});save();render();}});
+window.delIndustry=i=>openConfirm('¿Eliminar esta categoría?',()=>{DB.industries.splice(i,1);save();render();});
+window.updSeq=(i,k,el)=>{DB.sequences[i][k]=k==='name'?el.textContent.trim():num(el.textContent);save();};
+window.toggleSeq=i=>{DB.sequences[i].running=!DB.sequences[i].running;save();render();};
+window.addSeq=()=>openForm({title:'Nueva secuencia',fields:[
+  {key:'name',label:'Nombre de la secuencia',required:true,placeholder:'Ej. Growth sin agencia'},
+  {key:'sent',label:'Enviados',type:'number',value:0},
+  {key:'replies',label:'Respuestas',type:'number',value:0},
+  {key:'positive',label:'Respuestas positivas',type:'number',value:0},
+],onSave:v=>{DB.sequences.push({name:v.name,sent:v.sent,replies:v.replies,positive:v.positive,running:true});save();render();}});
+window.delSeq=i=>openConfirm('¿Eliminar esta secuencia?',()=>{DB.sequences.splice(i,1);save();render();});
+window.updSubject=(i,k,el)=>{DB.subjects[i][k]=el.textContent.replace(/^[🥇🥈🥉\s]+/,'').trim();save();};
+window.addSubject=()=>openForm({title:'Nuevo subject line',fields:[
+  {key:'s',label:'Subject',required:true,placeholder:'Ej. ¿Tu marca o tu competencia?'},
+  {key:'rate',label:'% de respuesta',placeholder:'Ej. 8%',value:'0%'},
+],onSave:v=>{DB.subjects.push({s:v.s,rate:v.rate||'0%'});save();render();}});
+window.delSubject=i=>openConfirm('¿Eliminar este subject?',()=>{DB.subjects.splice(i,1);save();render();});
+
+/* ============ FOLLOW-UP ============ */
+function viewFollowup(){
+  const due=DB.followups.filter(f=>!f.replied && f.due!=='-');
+  return `
+  <div class="callout">🔁 <b>Aquí se pierden la mayoría de los leads.</b> Que ninguno se caiga. Marca cuando alguien responde.</div>
+  <div class="g3" style="margin:16px 0">
+    <div class="mini-stat"><div class="n" style="color:var(--bad)">${due.length}</div><div class="l">Tocan hoy</div></div>
+    <div class="mini-stat"><div class="n" style="color:var(--sage)">${DB.followups.filter(f=>f.replied).length}</div><div class="l">Respondieron ✓</div></div>
+    <div class="mini-stat"><div class="n">${DB.followups.length}</div><div class="l">En seguimiento</div></div>
+  </div>
+  <div class="card">
+    <div class="flex between"><h3>Lista de seguimientos</h3><button class="btn sm ghost" onclick="addFollow()">+ Agregar</button></div>
+    <div class="tbl-wrap"><table style="margin-top:10px"><thead><tr><th></th><th>Persona</th><th>Contacto</th><th>Etapa</th><th>Vence</th><th></th></tr></thead><tbody>
+    ${DB.followups.map((f,i)=>`<tr>
+      <td><div class="check ${f.replied?'on':''}" onclick="toggleFollow(${i})" style="width:22px;height:22px;min-width:22px">${f.replied?'✓':''}</div></td>
+      <td><b>${esc(f.name)}</b></td><td>${esc(f.contact)}</td>
+      <td>${f.replied?'<span class="tag ok">Respondió ✓</span>':`<span class="tag warn">${esc(f.stage)}</span>`}</td>
+      <td style="${!f.replied&&f.due!=='-'?'color:var(--bad);font-weight:700':'color:var(--ink-soft)'}">${f.due!=='-'?fmtDate(f.due):'-'}</td>
+      <td><button class="btn sm ghost" onclick="delFollow(${i})">✕</button></td>
+    </tr>`).join('')}
+    </tbody></table></div>
+  </div>`;
+}
+window.toggleFollow=i=>{DB.followups[i].replied=!DB.followups[i].replied;if(DB.followups[i].replied)DB.followups[i].due='-';save();render();};
+window.delFollow=i=>openConfirm('¿Quitar este seguimiento?',()=>{DB.followups.splice(i,1);save();render();});
+window.addFollow=()=>openForm({title:'Nuevo seguimiento',fields:[
+  {key:'name',label:'Persona / Empresa',required:true},
+  {key:'contact',label:'Contacto'},
+  {key:'stage',label:'Etapa',type:'select',options:['Follow-up #1','Follow-up #2','Follow-up #3'],value:'Follow-up #1'},
+  {key:'due',label:'Vence',type:'date',value:todayStr()},
+],onSave:v=>{DB.followups.push({name:v.name,contact:v.contact,stage:v.stage,due:v.due||'-',replied:false});save();render();}});
+
+/* ============ MEETINGS ============ */
+function viewMeetings(){
+  const up=DB.meetings.filter(m=>m.status==='upcoming');
+  const done=DB.meetings.filter(m=>m.status==='done');
+  return `
+  <div class="flex between"><div class="callout" style="flex:1">📅 Tus reuniones, prep y resultados en un solo lugar.</div><button class="btn gold" onclick="addMeeting()" style="margin-left:12px">+ Reunión</button></div>
+  <div class="section-title"><h2>⏭ Próximas (${up.length})</h2><div class="line"></div></div>
+  <div class="g2">
+  ${up.length?up.map(m=>meetingCard(m,DB.meetings.indexOf(m))).join(''):'<div class="empty">Sin reuniones próximas</div>'}
+  </div>
+  <div class="section-title"><h2>✓ Realizadas</h2><div class="line"></div></div>
+  <div class="card"><div class="tbl-wrap"><table><thead><tr><th>Fecha</th><th>Empresa</th><th>Tipo</th><th>Resultado / próximo paso</th></tr></thead><tbody>
+  ${done.map(m=>`<tr><td>${fmtDate(m.date)}</td><td><b>${esc(m.co)}</b></td><td><span class="tag info">${m.type}</span></td><td>${esc(m.prep)}</td></tr>`).join('')||'<tr><td colspan="4" class="empty">Aún ninguna</td></tr>'}
+  </tbody></table></div></div>`;
+}
+function meetingCard(m,i){
+  return `<div class="card soft">
+    <div class="flex between"><div><div style="font-weight:700;color:var(--mauve-deep);font-size:15px">${esc(m.co)}</div><div class="muted" style="font-size:12px">${esc(m.contact)}</div></div><span class="tag gold">${m.type}</span></div>
+    <div class="flex wrap" style="margin-top:10px;gap:8px;font-size:13px"><span class="chip">📆 ${fmtDate(m.date)}</span><span class="chip">🕐 ${m.time}</span></div>
+    ${m.link?`<div style="margin-top:8px;font-size:12px">🔗 ${esc(m.link)}</div>`:''}
+    <div style="margin-top:10px;background:#fff;border-radius:10px;padding:10px;font-size:12.5px"><b>Prep:</b> ${esc(m.prep)}</div>
+    <div class="flex wrap" style="margin-top:10px;gap:8px"><button class="btn sm" onclick="meetDone(${i})">✓ Realizada</button><button class="btn sm ghost" onclick="editMeet(${i})">Editar</button><button class="btn sm ghost" onclick="delMeet(${i})">✕</button></div>
+  </div>`;
+}
+window.meetDone=i=>openForm({title:'Marcar como realizada',sub:DB.meetings[i].co,saveLabel:'Marcar realizada',fields:[
+  {key:'prep',label:'Resultado / próximo paso',type:'textarea',value:DB.meetings[i].prep},
+],onSave:v=>{DB.meetings[i].prep=v.prep;DB.meetings[i].status='done';save();render();}});
+window.editMeet=i=>openForm({title:'Editar reunión',sub:DB.meetings[i].co,fields:[
+  {key:'date',label:'Fecha',type:'date',value:DB.meetings[i].date},
+  {key:'time',label:'Hora',type:'time',value:DB.meetings[i].time},
+  {key:'type',label:'Tipo',type:'select',options:['Discovery','Pitch','Follow-up'],value:DB.meetings[i].type},
+  {key:'link',label:'Link',value:DB.meetings[i].link},
+  {key:'prep',label:'Notas de prep',type:'textarea',value:DB.meetings[i].prep},
+],onSave:v=>{Object.assign(DB.meetings[i],{date:v.date,time:v.time,type:v.type,link:v.link,prep:v.prep});save();render();}});
+window.delMeet=i=>openConfirm('¿Eliminar esta reunión?',()=>{DB.meetings.splice(i,1);save();render();});
+window.addMeeting=()=>openForm({title:'Nueva reunión',fields:[
+  {key:'co',label:'Empresa',required:true},
+  {key:'contact',label:'Contacto'},
+  {key:'date',label:'Fecha',type:'date',value:todayStr()},
+  {key:'time',label:'Hora',type:'time',value:'10:00'},
+  {key:'type',label:'Tipo',type:'select',options:['Discovery','Pitch','Follow-up'],value:'Discovery'},
+  {key:'link',label:'Link (opcional)'},
+  {key:'prep',label:'Notas de prep',type:'textarea'},
+],onSave:v=>{DB.meetings.push({co:v.co,contact:v.contact,date:v.date,time:v.time,type:v.type,status:'upcoming',link:v.link,prep:v.prep});save();render();}});
+
+/* ============ HANDOFF ============ */
+function viewHandoff(){
+  return `
+  <div class="callout">🤝 <b>Oro para ti y Claudia.</b> Los leads que Genesis calificó y agendó caen aquí, listos para cerrar. Nada se cae entre las dos.</div>
+  <div class="flex between wrap" style="margin:16px 0 10px"><h3>Leads listos para cerrar (${DB.handoff.length})</h3><button class="btn gold" onclick="addHandoff()">+ Pasar a Claudia</button></div>
+  <div class="g2">
+  ${DB.handoff.length?DB.handoff.map((h,i)=>`
+    <div class="card soft" style="border-left:4px solid var(--gold)">
+      <div class="flex between"><div><div style="font-weight:700;color:var(--mauve-deep);font-size:16px">${esc(h.co)}</div><div class="muted" style="font-size:12.5px">${esc(h.contact)}</div></div><span class="pk ${h.pkg==='Signature'?'sig':'ess'}">${h.pkg} · ${money(h.val)}</span></div>
+      <div style="margin-top:10px;background:#fff;border-radius:10px;padding:11px;font-size:13px"><b>Contexto:</b><br>${esc(h.context)}</div>
+      <div class="flex between" style="margin-top:10px"><span class="tag mauve">${esc(h.status)}</span><span class="muted" style="font-size:11px">${fmtDate(h.date)}</span></div>
+      <button class="btn sm ghost" style="margin-top:8px" onclick="delHandoff(${i})">Quitar</button>
+    </div>`).join(''):'<div class="empty">Aún no hay leads listos para cerrar</div>'}
+  </div>`;
+}
+window.addHandoff=()=>openForm({title:'Pasar lead a Claudia',sub:'Lo verá en su Clau Dashboard',fields:[
+  {key:'co',label:'Empresa',required:true},
+  {key:'contact',label:'Contacto'},
+  {key:'pkg',label:'Paquete',type:'select',options:['Signature','Essential'],value:'Signature'},
+  {key:'val',label:'Valor ($)',type:'number',value:5000},
+  {key:'context',label:'Contexto para Claudia',type:'textarea',placeholder:'Dolor, presupuesto, timing, quién decide...'},
+],onSave:v=>{DB.handoff.push({co:v.co,contact:v.contact,pkg:v.pkg,val:v.val,context:v.context,date:todayStr(),status:'Listo'});save();render();}});
+window.delHandoff=i=>openConfirm('¿Quitar este lead del handoff?',()=>{DB.handoff.splice(i,1);save();render();});
+
+/* ============ GOALS ============ */
+function viewGoals(){
+  const M=metrics(),t=DB.kpiTargets;
+  const rows=[['emails','Emails enviados','📧',M.emails],['replies','Respuestas','💬',M.replies],['meetings','Reuniones','📅',M.meetingsAll],['leads','Leads nuevos','✨',M.leads],['proposals','Propuestas','📄',M.proposals],['closes','Cierres','🏆',M.won]];
+  return `
+  <div class="callout">🎯 Tus números reales (izquierda, calculados solos desde tu app) vs tu meta (editable, toca para cambiar).</div>
+  <div class="card" style="margin-top:16px">
+    <h3>Progreso de la semana</h3>
+    <div style="margin-top:16px">
+    ${rows.map(([k,nm,ic,actual])=>`
+      <div class="bar-row">
+        <div class="nm">${ic} ${nm}</div>
+        <div class="track"><i style="width:${pct(actual,t[k])}%"></i></div>
+        <div class="vv"><b style="color:var(--mauve-deep)">${actual}</b> / <span contenteditable inputmode="numeric" oninput="updTarget('${k}',this)">${t[k]}</span></div>
+      </div>`).join('')}
+    </div>
+  </div>
+  <div class="g2" style="margin-top:18px">
+    <div class="card kpi g"><div class="deco">👑</div><div class="lbl">Comisión ganada (10%)</div><div class="num">${money(M.commission)}</div><div class="meta">Automática: 10% de ${money(M.wonVal)} en deals ganados</div></div>
+    <div class="card">
+      <h3>📈 Conversión del embudo</h3>
+      <div style="margin-top:12px">
+        ${funnelRow('Emails → Respuestas',pct(M.replies,M.emails))}
+        ${funnelRow('Respuestas → Reuniones',pct(M.meetingsAll,M.replies))}
+        ${funnelRow('Reuniones → Propuestas',pct(M.proposals,M.meetingsAll))}
+        ${funnelRow('Propuestas → Cierres',pct(M.won,M.proposals))}
+      </div>
+    </div>
+  </div>`;
+}
+function funnelRow(nm,p){return `<div class="bar-row"><div class="nm" style="width:175px;font-size:12px">${nm}</div><div class="track"><i style="width:${p}%"></i></div><div class="vv">${p}%</div></div>`;}
+window.updTarget=(k,el)=>{DB.kpiTargets[k]=num(el.textContent);save();};
+
+/* ============ CONTENT ============ */
+function viewContent(){
+  const st=v=>v==='✓'?'<span class="tag ok">✓</span>':v==='Pend'?'<span class="tag warn">Pend</span>':v&&v!=='-'?`<span class="tag info">${esc(v)}</span>`:'<span class="muted">—</span>';
+  const gen=DB.content.filter(c=>c.owner==='Genesis').length;
+  const cla=DB.content.filter(c=>c.owner==='Claudia').length;
+  return `
+  <div class="flex between wrap"><div class="callout" style="flex:1">✨ Todo el contenido y <b>quién lo lleva</b> (Genesis 💜 / Claudia 👑). Toca ↻ para avanzar el estado, o el responsable para cambiarlo.</div><button class="btn gold" onclick="addContent()" style="margin-left:12px">+ Idea</button></div>
+  <div class="g2" style="margin:14px 0">
+    <div class="mini-stat"><div class="n" style="color:var(--mauve-deep)">${gen}</div><div class="l">💜 Lleva Genesis</div></div>
+    <div class="mini-stat"><div class="n" style="color:var(--gold)">${cla}</div><div class="l">👑 Llevas tú (Claudia)</div></div>
+  </div>
+  <div class="card">
+    <div class="tbl-wrap"><table><thead><tr><th>Idea</th><th>Canal</th><th>Responsable</th><th>Diseño</th><th>Copy</th><th>Aprob.</th><th>Program.</th><th>Public.</th><th></th></tr></thead><tbody>
+    ${DB.content.map((c,i)=>`<tr>
+      <td><b>${esc(c.idea)}</b></td>
+      <td><span class="tag mauve">${esc(c.channel)}</span></td>
+      <td><button class="btn sm ${c.owner==='Claudia'?'gold':'ghost'}" onclick="toggleOwner(${i})">${c.owner==='Claudia'?'👑 Claudia':'💜 Genesis'}</button></td>
+      <td>${st(c.design)}</td><td>${st(c.copy)}</td><td>${st(c.approved)}</td>
+      <td>${c.scheduled?`<span class="tag gold">${fmtDate(c.scheduled)}</span>`:'—'}</td>
+      <td>${c.published?'<span class="tag ok">✓</span>':'—'}</td>
+      <td class="flex" style="gap:4px"><button class="btn sm ghost" onclick="cycleContent(${i})">↻</button><button class="btn sm ghost" onclick="delContent(${i})">✕</button></td>
+    </tr>`).join('')}
+    </tbody></table></div>
+    <p class="muted" style="font-size:12px;margin-top:10px">↻ avanza la pieza: Diseño → Copy → Aprobación → Programado → Publicado.</p>
+  </div>`;
+}
+window.toggleOwner=i=>{DB.content[i].owner=DB.content[i].owner==='Genesis'?'Claudia':'Genesis';save();render();};
+window.addContent=()=>openForm({title:'Nueva idea de contenido',fields:[
+  {key:'idea',label:'Idea',required:true,placeholder:'Ej. Carrusel: 5 errores de growth'},
+  {key:'channel',label:'Canal',type:'select',options:['LinkedIn','Email','Newsletter','Blog'],value:'LinkedIn'},
+  {key:'owner',label:'Responsable',type:'select',options:['Genesis','Claudia'],value:'Genesis'},
+],onSave:v=>{DB.content.push({idea:v.idea,channel:v.channel,owner:v.owner,design:'Pend',copy:'Pend',approved:'-',scheduled:'',published:''});save();render();}});
+window.cycleContent=i=>{const c=DB.content[i];if(c.design!=='✓')c.design='✓';else if(c.copy!=='✓')c.copy='✓';else if(c.approved!=='✓')c.approved='✓';else if(!c.scheduled)c.scheduled=todayStr();else if(!c.published)c.published=todayStr();save();render();};
+window.delContent=i=>openConfirm('¿Eliminar esta pieza de contenido?',()=>{DB.content.splice(i,1);save();render();});
+
+/* ============ HITLIST ============ */
+function viewHitlist(){
+  return `
+  <div class="callout">⭐ Prospección con puntería, no volumen al azar. Empresas soñadas + perfil de cliente ideal KOBO.</div>
+  <div class="g2" style="margin-top:16px">
+    <div class="card">
+      <div class="flex between"><h3>🎯 Hit List · Empresas soñadas</h3><button class="btn sm ghost" onclick="addHit()">+ Empresa</button></div>
+      <div class="tbl-wrap"><table style="margin-top:10px"><thead><tr><th>Empresa</th><th>Industria</th><th>Por qué</th><th>Estado</th><th></th></tr></thead><tbody>
+      ${DB.hitlist.map((h,i)=>`<tr><td><b>${esc(h.co)}</b></td><td><span class="tag mauve">${esc(h.ind)}</span></td><td style="font-size:12px">${esc(h.why)}</td><td><span class="tag ${h.status==='Soñada'?'gold':'info'}">${esc(h.status)}</span></td><td><button class="btn sm ghost" onclick="delHit(${i})">✕</button></td></tr>`).join('')}
+      </tbody></table></div>
+    </div>
+    <div class="card soft">
+      <h3>💎 Cliente ideal KOBO (ICP)</h3>
+      <div style="margin-top:12px;font-size:13px;line-height:1.8">
+        <div class="flex wrap" style="gap:8px;margin-bottom:8px"><span class="chip">🏢 Industria</span> Data Centers, Telecom, SaaS, Fintech, Hospitality premium</div>
+        <div class="flex wrap" style="gap:8px;margin-bottom:8px"><span class="chip">📏 Tamaño</span> 10–200 empleados, con presupuesto de marketing</div>
+        <div class="flex wrap" style="gap:8px;margin-bottom:8px"><span class="chip">📍 Ciudad</span> Mercados clave / capitales</div>
+        <div style="margin-top:12px"><b>Señales de que necesitan growth:</b>
+        <ul style="margin-left:18px;margin-top:6px;line-height:1.9">
+          <li>Quieren ser <i>la referencia</i> de su mercado</li>
+          <li>Sin equipo de adquisición interno</li>
+          <li>Dependen de referidos / boca a boca</li>
+          <li>Founder vendiendo todavía a mano</li>
+          <li>Marca bonita pero pipeline vacío</li>
+        </ul></div>
+      </div>
+    </div>
+  </div>`;
+}
+window.addHit=()=>openForm({title:'Nueva empresa soñada',fields:[
+  {key:'co',label:'Empresa',required:true},
+  {key:'ind',label:'Industria',type:'select',options:INDUSTRIES,value:'SaaS'},
+  {key:'why',label:'Por qué la quieren',type:'textarea'},
+  {key:'status',label:'Estado',type:'select',options:['Soñada','Investigando'],value:'Soñada'},
+],onSave:v=>{DB.hitlist.push({co:v.co,ind:v.ind,why:v.why,status:v.status});save();render();}});
+window.delHit=i=>openConfirm('¿Quitar esta empresa de la hit list?',()=>{DB.hitlist.splice(i,1);save();render();});
+
+/* ============ CLIENTS ============ */
+function viewClients(){
+  const M=metrics();
+  return `
+  <div class="callout">🌷 La fuente más barata de nuevos clientes es cuidar los que ya tienes. Esto alimenta tu revenue automáticamente.</div>
+  <div class="g3" style="margin:16px 0">
+    <div class="mini-stat"><div class="n">${M.clients}</div><div class="l">Clientes activos</div></div>
+    <div class="mini-stat"><div class="n">${money(M.revenue)}</div><div class="l">Ingreso mensual</div></div>
+    <div class="mini-stat"><div class="n">${DB.clients.filter(c=>c.next&&c.next.toLowerCase().includes('upsell')).length}</div><div class="l">Oportunidades upsell</div></div>
+  </div>
+  <div class="card">
+    <div class="flex between"><h3>Cuentas</h3><button class="btn sm ghost" onclick="addClient()">+ Cliente</button></div>
+    <div class="tbl-wrap"><table style="margin-top:10px"><thead><tr><th>Cliente</th><th>Servicio</th><th>Monto</th><th>Estado</th><th>Próxima acción</th><th>Maneja</th><th></th></tr></thead><tbody>
+    ${DB.clients.map((c,i)=>`<tr><td><b>${esc(c.co)}</b></td><td><span class="pk ${c.service==='Signature'?'sig':'ess'}">${esc(c.service)}</span></td><td><b style="color:var(--gold)">${money(c.amount)}</b></td><td><span class="tag ok">${esc(c.status)}</span></td><td style="font-size:12px">${esc(c.next)}</td><td>${esc(c.owner)}</td><td><button class="btn sm ghost" onclick="delClient(${i})">✕</button></td></tr>`).join('')||'<tr><td colspan="7" class="empty">Sin clientes aún</td></tr>'}
+    </tbody></table></div>
+  </div>`;
+}
+window.addClient=()=>openForm({title:'Nuevo cliente',sub:'Suma a tu revenue mensual',fields:[
+  {key:'co',label:'Cliente',required:true},
+  {key:'service',label:'Servicio',type:'select',options:['Signature','Essential'],value:'Signature'},
+  {key:'amount',label:'Monto mensual ($)',type:'number',value:3000},
+  {key:'next',label:'Próxima acción',placeholder:'Ej. Upsell a Signature'},
+],onSave:v=>{DB.clients.push({co:v.co,service:v.service,amount:v.amount,status:'Activo',next:v.next,owner:'Genesis'});save();render();}});
+window.delClient=i=>openConfirm('¿Eliminar este cliente?',()=>{DB.clients.splice(i,1);save();render();});
+
+/* ============ PLAYBOOK ============ */
+function viewPlaybook(){
+  return `
+  <div class="callout">📖 <b>Tu biblia de ventas.</b> Todo lo que necesitas para vender bien, en un solo lugar.</div>
+  <div style="margin-top:16px">
+  <details class="acc" open><summary>✨ Pitch & One-liner KOBO</summary><div class="body">
+    <p style="font-size:15px;color:var(--mauve-deep);font-weight:600;margin-bottom:8px">"Somos el growth studio para marcas que quieren ser la referencia en su mercado."</p>
+    <p>Versión larga: KOBO conecta estrategia, contenido y adquisición para que marcas con potencial dejen de depender de referidos y se vuelvan el nombre obligado de su industria.</p>
+  </div></details>
+  <details class="acc"><summary>💰 Paquetes & Pricing (con anclaje)</summary><div class="body">
+    <div class="callout" style="margin-bottom:12px">🪝 <b>Truco de anclaje:</b> SIEMPRE muestra <b>Signature ($5K)</b> primero, luego <b>Essential ($3K)</b>. El segundo se siente como alivio.</div>
+    <div class="tbl-wrap"><table><thead><tr><th>Paquete</th><th>Precio</th><th>Para quién</th></tr></thead><tbody>
+      <tr><td><span class="pk sig">Signature</span></td><td><b>$5,000/mes</b></td><td>Marcas que quieren dominar su mercado. Todo incluido.</td></tr>
+      <tr><td><span class="pk ess">Essential</span></td><td><b>$3,000/mes</b></td><td>Marcas que arrancan growth serio. Lo esencial.</td></tr>
+    </tbody></table></div>
+  </div></details>
+  <details class="acc"><summary>🏆 Caso de éxito · Bottega</summary><div class="body">
+    <p>Cliente Essential desde mayo. <i>(Documentar métricas reales: leads generados, crecimiento, testimonial.)</i></p>
+    <p style="margin-top:6px" class="muted">Tip: pídele a Ana un testimonial en video — es tu mejor herramienta de cierre.</p>
+  </div></details>
+  <details class="acc"><summary>🎤 Script de Discovery</summary><div class="body"><ul>
+    <li>"Cuéntame cómo consiguen clientes hoy."</li>
+    <li>"¿Qué tan predecible es ese flujo?"</li>
+    <li>"Si pudieras crecer 2x sin contratar un equipo, ¿qué cambiaría?"</li>
+    <li>"¿Quién más decide sobre esto contigo?"</li>
+    <li>"¿Cuándo querrías ver resultados?"</li>
+  </ul></div></details>
+  <details class="acc"><summary>🛡 Manejo de objeciones</summary><div class="body"><ul>
+    <li><b>"Es caro":</b> "Comparado con un empleado de growth, somos un equipo completo por menos."</li>
+    <li><b>"Ya tenemos agencia":</b> "Las agencias hacen tareas; nosotros, crecimiento medible. ¿Qué resultados te dan hoy?"</li>
+    <li><b>"Déjame pensarlo":</b> "Claro — ¿qué parte específica quieres resolver para decidir?"</li>
+    <li><b>"No es buen momento":</b> "El segundo mejor momento es hoy. Empecemos con Essential."</li>
+  </ul></div></details>
+  <details class="acc"><summary>👑 Modelo de comisión</summary><div class="body">
+    <p>Genesis gana <b>10% de finder fee</b> sobre cada deal que prospecta y agenda, una vez cerrado por Claudia. Se calcula solo en tu Inicio y Metas.</p>
+  </div></details>
+  </div>`;
+}
+
+/* ============ NOTES ============ */
+function viewNotes(){
+  return `
+  <div class="g2">
+    <div class="card">
+      <h3>💭 Scratchpad</h3>
+      <p class="muted" style="font-size:12px;margin:6px 0 10px">Ideas de campañas, recordatorios y cosas para comentarle a Claudia. Se guarda solo.</p>
+      <textarea class="note" id="noteArea" style="min-height:300px" placeholder="Escribe aquí...">${esc(DB.notes||'')}</textarea>
+    </div>
+    <div class="card soft">
+      <div class="flex between"><h3>🔍 Ideas & Research</h3><button class="btn sm ghost" onclick="addIdea()">+ Idea</button></div>
+      <div style="margin-top:12px">
+      ${DB.ideas.map((x,i)=>`<div class="todo"><span style="font-size:14px">${x.type==='Competidor'?'⚔️':x.type==='Campaña'?'🎬':x.type==='Herramienta'?'🛠':'📈'}</span><div class="t"><span class="tag ${x.type==='Competidor'?'bad':x.type==='Campaña'?'mauve':x.type==='Herramienta'?'info':'gold'}" style="margin-right:6px">${esc(x.type)}</span>${esc(x.t)}</div><button class="x" onclick="delIdea(${i})">✕</button></div>`).join('')}
+      </div>
+    </div>
+  </div>`;
+}
+function wireNotes(){const ta=$('#noteArea');if(ta)ta.addEventListener('input',()=>{DB.notes=ta.value;save();});}
+window.addIdea=()=>openForm({title:'Nueva idea / research',fields:[
+  {key:'type',label:'Tipo',type:'select',options:['Competidor','Campaña','Herramienta','Tendencia'],value:'Campaña'},
+  {key:'t',label:'Idea',required:true,type:'textarea'},
+],onSave:v=>{DB.ideas.push({type:v.type,t:v.t});save();render();}});
+window.delIdea=i=>openConfirm('¿Eliminar esta idea?',()=>{DB.ideas.splice(i,1);save();render();});
+
+/* ============ ANALYTICS ============ */
+function viewAnalytics(){
+  const M=metrics();
+  const maxE=Math.max(...DB.industries.map(x=>num(x.emails)),1);
+  const pubCount=DB.content.filter(c=>c.published).length;
+  return `
+  <div class="callout">📊 Todo se calcula solo desde lo que llenas: qué industrias son buenas, cuáles no, y cómo va tu revenue.</div>
+  <div class="section-title"><h2>🚀 Prospecting</h2><div class="line"></div></div>
+  <div class="grid kpis">
+    ${kpiCard('Emails enviados',M.emails,'📧')}
+    ${kpiCard('Reply rate',M.replyRate+'%','💬','Respuestas / enviados')}
+    ${kpiCard('Reuniones',M.meetingsAll,'📅')}
+    ${kpiCard('Leads',M.leads,'✨')}
+  </div>
+  <div class="card" style="margin-top:16px">
+    <h3>Emails y respuesta por industria</h3>
+    <div style="margin-top:14px">
+    ${DB.industries.map(x=>`<div class="bar-row"><div class="nm" style="width:140px;font-size:12px">${esc(x.cat)}</div><div class="track"><i style="width:${Math.round(num(x.emails)/maxE*100)}%"></i></div><div class="vv">${x.emails} · ${pct(num(x.replies),num(x.emails))}%</div></div>`).join('')}
+    </div>
+  </div>
+  <div class="g2" style="margin-top:16px">
+    <div class="card">
+      <div class="section-title" style="margin-top:0"><h2>✨ Marketing</h2><div class="line"></div></div>
+      <div class="g2">
+        <div class="mini-stat"><div class="n">${pubCount}</div><div class="l">Posts publicados</div></div>
+        <div class="mini-stat"><div class="n">${DB.content.length}</div><div class="l">En pipeline contenido</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-title" style="margin-top:0"><h2>💰 Revenue</h2><div class="line"></div></div>
+      <div class="g2">
+        <div class="mini-stat"><div class="n">${money(M.revenue)}</div><div class="l">Ingreso mensual</div></div>
+        <div class="mini-stat"><div class="n">${money(M.pipelineValue)}</div><div class="l">Valor en pipeline</div></div>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ============ CLAU DASHBOARD ============ */
+function viewCEO(){
+  const M=metrics();
+  return `
+  <div class="numero" style="margin-bottom:18px">
+    <div class="spark">👑</div>
+    <h3>Resumen para Claudia</h3>
+    <div class="aff">Lo que Genesis logró, en vivo y sin preguntar — todo calculado desde su app.</div>
+  </div>
+  <div class="grid kpis">
+    ${kpiCard('Emails enviados',M.emails,'📧','Registrados en Apollo')}
+    ${kpiCard('Leads generados',M.leads,'✨')}
+    ${kpiCard('Reuniones agendadas',M.meetingsAll,'📅')}
+    ${kpiCard('Tareas completadas',M.tasksDone,'✅')}
+    ${kpiCard('Proyectos activos',M.projects,'📁')}
+    ${kpiCard('Listos para cerrar',M.handoffs,'🤝','Esperándote')}
+    ${kpiCard('Deals ganados',M.won,'🏆','','g')}
+    ${kpiCard('Tareas atrasadas',M.tasksOverdue,'⚠️','Necesitan atención')}
+  </div>
+  <div class="g2" style="margin-top:18px">
+    <div class="card">
+      <h3>🤝 Esperando tu cierre</h3>
+      <div style="margin-top:10px">
+      ${DB.handoff.map(h=>`<div class="todo"><span>💎</span><div class="t"><b>${esc(h.co)}</b> · ${money(h.val)} <span class="tag mauve" style="margin-left:6px">${esc(h.status)}</span><div class="when">${esc((h.context||'').slice(0,70))}...</div></div></div>`).join('')||'<div class="empty">Nada pendiente</div>'}
+      </div>
+    </div>
+    <div class="card">
+      <h3>💰 Resultados</h3>
+      <div class="g2" style="margin-top:6px">
+        <div class="mini-stat"><div class="n">${money(M.revenue)}</div><div class="l">Revenue activo</div></div>
+        <div class="mini-stat"><div class="n">${money(M.pipelineValue)}</div><div class="l">Valor en pipeline</div></div>
+        <div class="mini-stat"><div class="n">${money(M.wonVal)}</div><div class="l">Cerrado total</div></div>
+        <div class="mini-stat"><div class="n">${money(M.commission)}</div><div class="l">Comisión Genesis</div></div>
+      </div>
+      <div class="callout" style="margin-top:14px">Reply rate global: <b>${M.replyRate}%</b> · ${M.tasksDone} tareas hechas · ${M.tasksOpen} pendientes.</div>
+    </div>
+  </div>`;
+}
+
+/* ============ INIT ============ */
+function startApp(){
+  initCal();
+  const h=new Date().getHours();
+  $('#greet').textContent=(h<12?'Buenos días':h<19?'Buenas tardes':'Buenas noches')+', Genesis ✿';
+  const now=new Date();const oneJan=new Date(now.getFullYear(),0,1);const wk=Math.ceil((((now-oneJan)/86400000)+oneJan.getDay()+1)/7);
+  $('#weekPill').textContent='Semana '+wk;
+  current='home';$('#pageTitle').textContent=TITLES.home;
+  buildNav();render();
+}
+function boot(){
+  buildLogin();
+  let authed=false; try{authed=localStorage.getItem(AUTH_KEY)==='1';}catch(e){}
+  if(authed){
+    document.getElementById('login').style.display='none';
+    document.getElementById('app').classList.remove('locked');
+    startApp();
+  }else{
+    const p=document.getElementById('pwd'); if(p) setTimeout(()=>{try{p.focus();}catch(e){}},150);
+  }
+}
+boot();
+</script>
+</body>
+</html>
