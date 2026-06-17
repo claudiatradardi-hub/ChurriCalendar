@@ -252,6 +252,24 @@ textarea.note:focus{outline:none;border-color:var(--mauve-soft);box-shadow:0 0 0
   .greet{display:none}
   .cal-grid{gap:5px}.cal-cell{min-height:54px;padding:5px}
 }
+.toast-wrap{position:fixed;right:16px;bottom:16px;z-index:90;display:flex;flex-direction:column;gap:8px;max-width:300px}
+.toast{background:var(--mauve-deep);color:#fff;border-radius:14px;padding:11px 13px;font-size:13px;box-shadow:0 10px 30px rgba(126,84,118,.3);display:flex;gap:9px;align-items:flex-start;transition:opacity .4s;animation:tin .25s}
+.toast b{color:var(--gold-soft)}
+.toast .tav{width:24px;height:24px;min-width:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff}
+@keyframes tin{from{transform:translateY(12px);opacity:0}to{transform:none;opacity:1}}
+.userbadge{display:flex;align-items:center;gap:7px;background:#fff;border:1px solid var(--line);border-radius:20px;padding:4px 12px 4px 5px;font-size:12.5px;font-weight:600;color:var(--mauve-deep)}
+.userbadge .av{width:25px;height:25px;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800}
+.bell{position:relative;border:0;background:var(--mauve-pale);color:var(--mauve-deep);width:38px;height:38px;border-radius:12px;font-size:16px;cursor:pointer}
+.bell .dot{position:absolute;top:6px;right:7px;width:9px;height:9px;border-radius:50%;background:var(--rose);border:2px solid #fff}
+.actfeed{position:fixed;right:14px;top:62px;width:300px;max-width:calc(100vw - 28px);max-height:72vh;overflow-y:auto;background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 18px 50px rgba(126,84,118,.25);z-index:75;padding:14px;display:none}
+.actfeed.show{display:block}
+.actfeed h4{font-size:13px;margin-bottom:8px}
+.actrow{display:flex;gap:9px;padding:9px 0;border-bottom:1px solid var(--line);font-size:12.5px}
+.actrow:last-child{border:0}
+.actrow .aav{width:27px;height:27px;min-width:27px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:800}
+.actrow .aw{font-weight:700;color:var(--mauve-deep)}
+.actrow .atm{color:var(--ink-soft);font-size:11px;margin-top:1px}
+.login-form input + input{margin-top:10px}
 </style>
 </head>
 <body>
@@ -263,8 +281,9 @@ textarea.note:focus{outline:none;border-color:var(--mauve-soft);box-shadow:0 0 0
     <div class="hi" id="loginHi"></div>
     <div class="login-num" id="loginNum"></div>
     <div class="login-form">
-      <input type="password" id="pwd" placeholder="Tu contraseña ✨" autocomplete="off" onkeydown="if(event.key==='Enter')doLogin()">
-      <button onclick="doLogin()">Entrar a mi mundo 💜</button>
+      <input type="email" id="email" placeholder="Tu correo" autocomplete="username" style="display:none" onkeydown="if(event.key==='Enter')doLogin()">
+      <input type="password" id="pwd" placeholder="Tu contraseña ✨" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+      <button id="loginBtn" onclick="doLogin()">Entrar a mi mundo 💜</button>
       <div class="login-err" id="loginErr"></div>
     </div>
     <div class="login-foot">Hecho con cariño para ti ✿</div>
@@ -300,10 +319,27 @@ textarea.note:focus{outline:none;border-color:var(--mauve-soft);box-shadow:0 0 0
       <h1 id="pageTitle">Inicio</h1>
       <span class="pill" id="weekPill"></span>
       <span class="greet" id="greet"></span>
+      <button class="bell" id="bell" onclick="toggleActFeed()" style="margin-left:auto" title="Actividad">🔔<span class="dot" id="bellDot" style="display:none"></span></button>
+      <div class="userbadge" id="userBadge" style="display:none"><span class="av" id="userAv"></span><span id="userName"></span></div>
     </div>
     <div id="views"></div>
   </main>
 </div>
+
+<script>
+window.FIREBASE_CONFIG = {
+  apiKey: "AIzaSyCQj73Jh7Mz6VsPlrOEfLdL_vX8TTOUHiE",
+  authDomain: "genesis-dashboard-5ede6.firebaseapp.com",
+  projectId: "genesis-dashboard-5ede6",
+  storageBucket: "genesis-dashboard-5ede6.firebasestorage.app",
+  messagingSenderId: "476930323361",
+  appId: "1:476930323361:web:6e3ba6156f78aef143d1e0"
+};
+window.APP_USERS = {
+  "vielmagen@gmail.com": "Genesis",
+  "claudiatradardi@gmail.com": "Claudia"
+};
+</script>
 
 <script>
 /* ============ NUMEROLOGY (8 feb 1997) ============ */
@@ -338,6 +374,16 @@ function buildLogin(){
     `<div class="nb"><div class="v">${LUCKY}</div><div class="l">Nº suerte</div></div>`;
 }
 function doLogin(){
+  if(CLOUD){
+    var email=(document.getElementById('email').value||'').trim();
+    var pwd=document.getElementById('pwd').value||'';
+    var eb=document.getElementById('loginErr');
+    if(!email||!pwd){if(eb)eb.textContent='Escribe tu correo y contraseña ✨';return;}
+    if(eb)eb.textContent='Entrando...';
+    if(window.fbSignIn)window.fbSignIn(email,pwd);
+    else if(eb)eb.textContent='Conectando con el servidor, intenta de nuevo en unos segundos ✨';
+    return;
+  }
   const v=document.getElementById('pwd').value;
   if(v===PASS){
     try{localStorage.setItem(AUTH_KEY,'1');}catch(e){}
@@ -350,7 +396,7 @@ function doLogin(){
     document.getElementById('loginErr').textContent='Contraseña incorrecta, intenta de nuevo ✨';
   }
 }
-function logout(){try{localStorage.removeItem(AUTH_KEY);}catch(e){}location.reload();}
+function logout(){if(CLOUD&&window.fbSignOut){window.fbSignOut();return;}try{localStorage.removeItem(AUTH_KEY);}catch(e){}location.reload();}
 window.doLogin=doLogin;window.logout=logout;
 
 /* ============ DATE HELPERS ============ */
@@ -454,7 +500,128 @@ let DB=JSON.parse(localStorage.getItem(DB_KEY)||'null')||seed();
 DB.meta=DB.meta||{name:'Genesis'}; if(DB.meta.commissionPct==null)DB.meta.commissionPct=10;
 ['tasks','kpiTargets','pipeline','industries','sequences','subjects','meetings','handoff','followups','content','clients','hitlist','ideas'].forEach(k=>{if(!DB[k])DB[k]=seed()[k];});
 if(DB.notes==null)DB.notes=seed().notes;
-const save=()=>{try{localStorage.setItem(DB_KEY,JSON.stringify(DB));}catch(e){}};
+if(!Array.isArray(DB.activity))DB.activity=[];
+const CLOUD=!!(window.FIREBASE_CONFIG&&window.FIREBASE_CONFIG.apiKey&&!/PASTE|YOUR_|XXXX/i.test(window.FIREBASE_CONFIG.apiKey)&&window.FIREBASE_CONFIG.projectId);
+let currentUser='Genesis', currentEmail='';
+function nameFromEmail(e){if(!e)return 'Usuaria';const m=window.APP_USERS||{};if(m[e])return m[e];const low=String(e).toLowerCase();if(low.includes('genesis')||low.includes('churri'))return 'Genesis';if(low.includes('claud'))return 'Claudia';const p=String(e).split('@')[0];return p.charAt(0).toUpperCase()+p.slice(1);}
+const clone=o=>JSON.parse(JSON.stringify(o));
+const _STRIP=['activity','_writer','_rev','_lastAct'];
+function _stripMeta(o){const c=clone(o);_STRIP.forEach(k=>delete c[k]);return c;}
+let prevSnap=null;
+function _short(s){s=String(s||'');return s.length>26?s.slice(0,26)+'…':s;}
+function _stageName(id){try{return (STAGES.find(x=>x.id===id)||{}).name||id;}catch(e){return id;}}
+function describeChange(a,b){
+  if(!a||!b)return null;
+  const Ta=a.tasks||[],Tb=b.tasks||[];
+  if(Tb.length>Ta.length)return 'agregó la tarea “'+_short(Tb[Tb.length-1].t)+'”';
+  if(Tb.length<Ta.length)return 'eliminó una tarea';
+  const da=Ta.filter(t=>t.done).length,dbn=Tb.filter(t=>t.done).length;
+  if(dbn>da)return 'completó una tarea';
+  if(dbn<da)return 'reabrió una tarea';
+  const Pa=a.pipeline||[],Pb=b.pipeline||[];
+  if(Pb.length>Pa.length)return 'agregó el prospecto “'+_short(Pb[Pb.length-1].co)+'”';
+  if(Pb.length<Pa.length)return 'eliminó un prospecto';
+  for(const p of Pb){const o=Pa.find(x=>x.id===p.id);if(o&&o.stage!==p.stage)return 'movió “'+_short(p.co)+'” a '+_stageName(p.stage);}
+  const Ma=a.meetings||[],Mb=b.meetings||[];
+  if(Mb.length>Ma.length)return 'agendó una reunión con “'+_short(Mb[Mb.length-1].co)+'”';
+  if(Mb.length<Ma.length)return 'eliminó una reunión';
+  for(const m of Mb){const o=Ma.find(x=>x.co===m.co&&x.date===m.date);if(o&&o.status!==m.status&&m.status==='done')return 'marcó realizada la reunión con “'+_short(m.co)+'”';}
+  const Ha=a.handoff||[],Hb=b.handoff||[];
+  if(Hb.length>Ha.length)return 'pasó “'+_short(Hb[Hb.length-1].co)+'” para cerrar';
+  if(Hb.length<Ha.length)return 'quitó un lead del handoff';
+  const Ca=a.clients||[],Cb=b.clients||[];
+  if(Cb.length>Ca.length)return 'agregó el cliente “'+_short(Cb[Cb.length-1].co)+'”';
+  if(Cb.length<Ca.length)return 'eliminó un cliente';
+  const Fa=a.followups||[],Fb=b.followups||[];
+  if(Fb.length>Fa.length)return 'agregó un seguimiento';
+  if(Fb.length<Fa.length)return 'quitó un seguimiento';
+  if(Fb.filter(f=>f.replied).length>Fa.filter(f=>f.replied).length)return 'marcó un seguimiento como respondido';
+  const Oa=a.content||[],Ob=b.content||[];
+  if(Ob.length>Oa.length)return 'agregó contenido: “'+_short(Ob[Ob.length-1].idea)+'”';
+  if(Ob.length<Oa.length)return 'eliminó una pieza de contenido';
+  const Ia=a.industries||[],Ib=b.industries||[];
+  if(Ib.length!==Ia.length)return 'editó las categorías de Apollo';
+  if(JSON.stringify(Ia)!==JSON.stringify(Ib))return 'actualizó métricas de prospección';
+  if(JSON.stringify(a.hitlist)!==JSON.stringify(b.hitlist))return 'actualizó la Hit List';
+  if(JSON.stringify(a.sequences)!==JSON.stringify(b.sequences))return 'actualizó las secuencias';
+  if(JSON.stringify(a.subjects)!==JSON.stringify(b.subjects))return 'actualizó los subject lines';
+  if(JSON.stringify(a.ideas)!==JSON.stringify(b.ideas))return 'guardó una idea';
+  if(JSON.stringify(a.kpiTargets)!==JSON.stringify(b.kpiTargets))return 'ajustó una meta';
+  if((a.notes||'')!==(b.notes||''))return 'editó sus notas';
+  if(JSON.stringify(_stripMeta(a))!==JSON.stringify(_stripMeta(b)))return 'actualizó datos';
+  return null;
+}
+function save(){
+  if(prevSnap===null)prevSnap=clone(DB);
+  const msg=describeChange(prevSnap,DB);
+  if(msg){
+    const ev={who:currentUser,msg:msg,at:Date.now()};
+    const last=DB.activity&&DB.activity[0];
+    if(last&&last.who===currentUser&&last.msg===msg&&(ev.at-last.at<120000)){last.at=ev.at;DB._lastAct=last;}
+    else{DB.activity=[ev].concat(DB.activity||[]).slice(0,50);DB._lastAct=ev;}
+  }
+  prevSnap=clone(DB);
+  try{localStorage.setItem(DB_KEY,JSON.stringify(DB));}catch(e){}
+  if(CLOUD&&window.fbSave){DB._writer=window.fbUid;DB._rev=Date.now();window.fbSave(DB);}
+  renderActivity();
+}
+function avInitial(n){return String(n||'?').charAt(0).toUpperCase();}
+function avColor(n){return n==='Genesis'?'linear-gradient(135deg,#A87CA0,#C9A45E)':(n==='Claudia'?'linear-gradient(135deg,#C9A45E,#E5A9BE)':'linear-gradient(135deg,#9DA8D4,#A87CA0)');}
+function timeAgo(ts){const s=Math.floor((Date.now()-ts)/1000);if(s<60)return 'hace un momento';const m=Math.floor(s/60);if(m<60)return 'hace '+m+' min';const h=Math.floor(m/60);if(h<24)return 'hace '+h+' h';return 'hace '+Math.floor(h/24)+' d';}
+function toast(ev){
+  const w=document.getElementById('toastWrap');if(!w||!ev)return;
+  const el=document.createElement('div');el.className='toast';
+  el.innerHTML='<span class="tav" style="background:'+avColor(ev.who)+'">'+avInitial(ev.who)+'</span><div><b>'+esc(ev.who)+'</b> '+esc(ev.msg)+'</div>';
+  w.appendChild(el);
+  setTimeout(function(){el.style.opacity='0';setTimeout(function(){el.remove();},400);},4500);
+}
+function renderActivity(){
+  const bd=document.getElementById('bellDot');
+  const last=DB.activity&&DB.activity[0];
+  let seen=0;try{seen=+localStorage.getItem('churri_seen_act')||0;}catch(e){}
+  if(bd)bd.style.display=(last&&last.at>seen)?'block':'none';
+  const f=document.getElementById('actFeed');
+  if(f&&f.classList.contains('show')){
+    const rows=(DB.activity||[]).length?DB.activity.map(a=>`<div class="actrow"><span class="aav" style="background:${avColor(a.who)}">${avInitial(a.who)}</span><div><span class="aw">${esc(a.who)}</span> ${esc(a.msg)}<div class="atm">${timeAgo(a.at)}</div></div></div>`).join(''):'<div class="empty">Sin actividad aún ✨</div>';
+    f.innerHTML='<h4>🔔 Actividad reciente</h4>'+rows;
+  }
+}
+window.toggleActFeed=()=>{const f=document.getElementById('actFeed');if(!f)return;f.classList.toggle('show');if(f.classList.contains('show')){try{localStorage.setItem('churri_seen_act',String(Date.now()));}catch(e){}const bd=document.getElementById('bellDot');if(bd)bd.style.display='none';renderActivity();}};
+let _initialLoaded=false;
+window.appOnAuth=function(user){
+  if(user){
+    currentEmail=user.email;currentUser=nameFromEmail(user.email);_initialLoaded=false;
+    document.getElementById('login').style.display='none';
+    document.getElementById('app').classList.remove('locked');
+    startApp();
+  }else{
+    currentEmail='';_initialLoaded=false;
+    document.getElementById('app').classList.add('locked');
+    const lg=document.getElementById('login');if(lg)lg.style.display='flex';
+    const eb=document.getElementById('loginErr');if(eb)eb.textContent='';
+  }
+};
+window.appAuthError=function(code){
+  const map={'auth/invalid-credential':'Correo o contraseña incorrectos','auth/wrong-password':'Contraseña incorrecta','auth/user-not-found':'No existe ese usuario','auth/invalid-email':'Correo inválido','auth/missing-password':'Escribe tu contraseña','auth/too-many-requests':'Demasiados intentos, espera un momento','auth/network-request-failed':'Sin conexión, revisa tu internet'};
+  const eb=document.getElementById('loginErr');if(eb)eb.textContent=(map[code]||('No se pudo entrar ('+code+')'))+' ✨';
+  const c=document.getElementById('loginCard');if(c){c.classList.remove('shake');void c.offsetWidth;c.classList.add('shake');}
+};
+window.appApplyData=function(data,isRemote){
+  if(!data)return;
+  if(_initialLoaded&&CLOUD&&data._writer&&window.fbUid&&data._writer===window.fbUid)return;
+  _initialLoaded=true;
+  DB=data;
+  DB.meta=DB.meta||{name:'Genesis'};if(DB.meta.commissionPct==null)DB.meta.commissionPct=10;
+  ['tasks','kpiTargets','pipeline','industries','sequences','subjects','meetings','handoff','followups','content','clients','hitlist','ideas'].forEach(function(k){if(!DB[k])DB[k]=seed()[k];});
+  if(!Array.isArray(DB.activity))DB.activity=[];
+  if(DB.notes==null)DB.notes=seed().notes;
+  prevSnap=clone(DB);
+  try{localStorage.setItem(DB_KEY,JSON.stringify(DB));}catch(e){}
+  if(current)render();
+  renderActivity();
+  if(isRemote&&data._lastAct&&data._lastAct.who!==currentUser)toast(data._lastAct);
+};
+window.appNeedSeed=function(){if(CLOUD&&window.fbSave){DB._writer=window.fbUid;DB._rev=Date.now();if(!Array.isArray(DB.activity))DB.activity=[];window.fbSave(DB);}};
 const $=s=>document.querySelector(s);
 const pct=(a,b)=>b?Math.min(100,Math.round(a/b*100)):0;
 const money=n=>'$'+Number(n||0).toLocaleString('en-US');
@@ -1321,7 +1488,13 @@ function viewCEO(){
 function startApp(){
   initCal();
   const h=new Date().getHours();
-  $('#greet').textContent=(h<12?'Buenos días':h<19?'Buenas tardes':'Buenas noches')+', Genesis ✿';
+  if(CLOUD){
+    var gg=$('#greet'); if(gg)gg.style.display='none';
+    var ub=document.getElementById('userBadge'); if(ub){ub.style.display='flex';document.getElementById('userName').textContent=currentUser;var avx=document.getElementById('userAv');avx.textContent=avInitial(currentUser);avx.style.background=avColor(currentUser);}
+  }else{
+    $('#greet').textContent=(h<12?'Buenos días':h<19?'Buenas tardes':'Buenas noches')+', '+currentUser+' ✿';
+  }
+  prevSnap=clone(DB);renderActivity();
   const now=new Date();const oneJan=new Date(now.getFullYear(),0,1);const wk=Math.ceil((((now-oneJan)/86400000)+oneJan.getDay()+1)/7);
   $('#weekPill').textContent='Semana '+wk;
   current='home';$('#pageTitle').textContent=TITLES.home;
@@ -1329,6 +1502,12 @@ function startApp(){
 }
 function boot(){
   buildLogin();
+  if(CLOUD){
+    var hi=document.getElementById('loginHi'); if(hi)hi.innerHTML='Hola ✯ Entra con tu correo y contraseña 💜';
+    var em=document.getElementById('email'); if(em){em.style.display='block';setTimeout(function(){try{em.focus();}catch(e){}},200);}
+    var lb=document.getElementById('loginBtn'); if(lb)lb.textContent='Entrar 💜';
+    return;
+  }
   let authed=false; try{authed=localStorage.getItem(AUTH_KEY)==='1';}catch(e){}
   if(authed){
     document.getElementById('login').style.display='none';
@@ -1339,6 +1518,43 @@ function boot(){
   }
 }
 boot();
+</script>
+<div class="toast-wrap" id="toastWrap"></div>
+<div class="actfeed" id="actFeed"></div>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+const cfg = window.FIREBASE_CONFIG;
+const real = cfg && cfg.apiKey && !/PASTE|YOUR_|XXXX/i.test(cfg.apiKey) && cfg.projectId;
+if (real) {
+  try {
+    const app = initializeApp(cfg);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const ref = doc(db, "apps", "churri");
+    window.fbUid = null;
+    window.fbSignIn = (email, pwd) => signInWithEmailAndPassword(auth, email, pwd).catch(e => { if (window.appAuthError) window.appAuthError(e.code || e.message); });
+    window.fbSignOut = () => signOut(auth);
+    let t = null, pending = null;
+    window.fbSave = (obj) => { pending = obj; clearTimeout(t); t = setTimeout(() => { try { setDoc(ref, JSON.parse(JSON.stringify(pending))); } catch (e) { console.error(e); } }, 350); };
+    let unsub = null;
+    onAuthStateChanged(auth, (user) => {
+      window.fbUid = user ? user.uid : null;
+      if (unsub) { unsub(); unsub = null; }
+      if (window.appOnAuth) window.appOnAuth(user ? { uid: user.uid, email: user.email } : null);
+      if (user) {
+        unsub = onSnapshot(ref, (snap) => {
+          if (!snap.exists()) { if (window.appNeedSeed) window.appNeedSeed(); return; }
+          const data = snap.data();
+          const isRemote = !!(data._writer && data._writer !== user.uid);
+          if (window.appApplyData) window.appApplyData(data, isRemote);
+        }, (err) => console.error("snapshot", err));
+      }
+    });
+    window.__CLOUD = true;
+  } catch (e) { console.error("Firebase init error", e); }
+}
 </script>
 </body>
 </html>
